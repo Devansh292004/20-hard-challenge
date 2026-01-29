@@ -61,6 +61,7 @@ Before starting, read [`docs/RULES.md`](./docs/RULES.md) completely.
 - [ ] Log Workout 1 (Strength)
 - [ ] Start water intake tracking
 - [ ] Log breakfast (compliance toggle)
+- [ ] * [ ] **LOG WEIGHT** (morning, same time) - Must be within ±100g of target
 
 ### Afternoon (12-2 PM)
 - [ ] Log second meal
