@@ -2,7 +2,7 @@
 // CORE LOGIC: Validates day completion and manages streak system
 // NO OVERRIDES, NO EXCEPTIONS, NO LOOPHOLES
 
-import { validateWorkout, validateWater, validateDiet, validatePhoto, validateReading } from './validators.js';
+import { validateWorkout, validateWater, validateDiet, validatePhoto, validateReading, validateWeight } from './validators.js';
 
 /**
  * Validates complete day submission
@@ -43,9 +43,14 @@ export function validateDayCompletion(dayData) {
   }
 
   // Check Reading/Learning
-  if (!validateReading(tasks.reading)) {
+  if (!validateReading, validateWeight(tasks.reading)) {
     errors.push('reading_insufficient');
   }
+  
+ // Check Daily Weight
+ if (!validateWeight(tasks.weight)) {
+   errors.push('weight_insufficient');
+ }
 
   return {
     valid: errors.length === 0,
@@ -174,7 +179,7 @@ export function initializeChallenge() {
 }
 
 // Export validation functions for reuse
-export { validateWorkout, validateWater, validateDiet, validatePhoto, validateReading };
+export { validateWorkout, validateWater, validateDiet, validatePhoto, validateReading, validateWeight };
 
 // ENFORCEMENT PHILOSOPHY:
 // This module enforces the challenge rules at the application level.
