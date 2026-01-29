@@ -101,3 +101,59 @@ export function validateMealCompliance(meal) {
 // Every check is hardcoded into the validator.
 // These functions are the source of truth for task completion.
 // No UI bypass is possible.
+
+
+/**
+ * Validate user input
+ * @param {Object} input - {name, email, age}
+ * @returns {boolean}
+ */
+export function validateUserInput(input) {
+  if (!input || typeof input !== 'object') return false;
+  
+  // Check required fields
+  if (!input.name || !input.email || input.age === undefined) return false;
+  
+  // Validate name (non-empty string)
+  if (typeof input.name !== 'string' || input.name.trim() === '') return false;
+  
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (typeof input.email !== 'string' || !emailRegex.test(input.email)) return false;
+  
+  // Validate age (positive number)
+  if (typeof input.age !== 'number' || input.age < 0) return false;
+  
+  return true;
+}
+
+/**
+ * Validate weight
+ * @param {number} weight - Weight in kg
+ * @returns {boolean}
+ */
+export function validateWeight(weight) {
+  if (typeof weight !== 'number' || isNaN(weight)) return false;
+  return weight >= 30 && weight <= 200;
+}
+
+/**
+ * Validate task completion
+ * @param {Object} task - {id, completed, timestamp, notes?}
+ * @returns {boolean}
+ */
+export function validateTaskCompletion(task) {
+  if (!task || typeof task !== 'object') return false;
+  
+  // Check required fields
+  if (!task.id || task.completed === undefined || !task.timestamp) return false;
+  
+  // Task must be marked as completed
+  if (task.completed !== true) return false;
+  
+  // Timestamp must be a valid date
+  const timestamp = new Date(task.timestamp);
+  if (isNaN(timestamp.getTime())) return false;
+  
+  return true;
+}
