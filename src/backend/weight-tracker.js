@@ -9,10 +9,8 @@
 export class WeightTracker {
   constructor() {
     this.records = [];
-    this.startWeight = 0;
-    this.goalWeight = 0;
-    this.targetDays = 20;
-    this.initialized = false;
+    this.startWeight = 80; // Default 80kg    this.goalWeight = 0;
+    this.goalWeight = 75; // Default 75kg    this.initialized = false;
   }
 
   /**
