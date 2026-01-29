@@ -124,6 +124,32 @@ Every requirement must be completed by 23:59 local time (Asia/Singapore) to mark
 
 ---
 
+### 6. Daily Weight Tracking: 5kg Target Loss (80→75kg)
+
+**Requirement**:
+
+* Daily weigh-in (morning, same time, same conditions)
+* Target: Reduce from 80kg to 75kg over 20 days
+* Daily target weight: 80kg - (0.25kg × day_number)
+* Allowed variance: ±100g from expected weight
+* Must be logged before 23:59 each day
+
+**Validation Rules**:
+
+* App calculates expected weight based on linear progression (0.25kg/day loss)
+* Weigh-in must be within ±100g of expected target
+* Missing weigh-in = Day 1
+* Weight gain beyond 100g variance = Day 1
+* Daily deficit required: ~1925 kcal (based on BMR + activity)
+* App tracks trend: must show downward trajectory overall
+* BMI monitoring: ensures healthy weight loss rate
+* Calorie estimation: provides daily deficit guidance
+
+**Failure Condition**: No weigh-in OR weight exceeds variance = Day 1
+
+---
+
+
 ## Streak System
 
 ### Current Streak
