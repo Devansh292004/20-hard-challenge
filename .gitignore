@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Production build
+dist/
+build/
+*.tgz
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+*.c9/
+*.log
+
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Local development files
+.cache/
+.parcel-cache/
+.next/
+out/
+
+# IndexedDB and browser storage (local only)
+*.db
+*.sqlite
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettierignore
+
+# Vite
+.vite/
