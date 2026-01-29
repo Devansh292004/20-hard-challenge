@@ -1,0 +1,22 @@
+{
+  "name": "Devansh",
+  "gender": "Male",
+  "height_cm": 179,
+  "current_weight_kg": 80,
+  "target_weight_kg": 75,
+  "weight_loss_days": 20,
+  "daily_weight_loss_target_kg": 0.25,
+  "weight_loss_tolerance_kg": 0.1,
+  "diet_type": "vegetarian_no_eggs",
+  "fitness_level": "beginner_intermediate",
+  "challenge_goal": "mental_toughness_consistency_discipline",
+  "location": "Singapore",
+  "timezone": "Asia/Singapore",
+  "challenge_start_date": "2024-01-01",
+  "daily_calorie_target_range": "2000-2400",
+  "workout_intensity_level": "moderate_to_high",
+  "estimated_daily_calorie_deficit_kcal": 1925,
+  "weight_tracking_enabled": true,
+  "weigh_in_time": "07:00",
+  "immutable": true
+}
