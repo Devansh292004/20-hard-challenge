@@ -186,3 +186,35 @@ export { validateWorkout, validateWater, validateDiet, validatePhoto, validateRe
 // There are NO backdoors, NO overrides, NO admin modes.
 // Every validation is mandatory and cannot be bypassed via UI.
 // Code is law. Discipline is non-negotiable.
+
+/**
+ * Enforcement Class
+ * Wrapper class for enforcement functions
+ */
+export class Enforcement {
+  constructor() {
+    this.streakData = {
+      currentStreak: 0,
+      longestStreak: 0
+    };
+  }
+
+  getCurrentStreak() {
+    return this.streakData.currentStreak;
+  }
+
+  getLongestStreak() {
+    return this.streakData.longestStreak;
+  }
+
+  updateStreak(completed) {
+    if (completed) {
+      this.streakData.currentStreak++;
+      if (this.streakData.currentStreak > this.streakData.longestStreak) {
+        this.streakData.longestStreak = this.streakData.currentStreak;
+      }
+    } else {
+      this.streakData.currentStreak = 0;
+    }
+  }
+}
