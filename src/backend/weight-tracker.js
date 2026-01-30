@@ -116,4 +116,10 @@ export class WeightTracker {
     const actualLoss = this.getTotalWeightLoss();
     return actualLoss < expectedLoss;
   }
+
+  getProgressPercentage() {
+    const totalToLose = this.startWeight - this.goalWeight;
+    const currentLoss = this.getTotalWeightLoss();
+    return (currentLoss / totalToLose) * 100;
+  }
 }
