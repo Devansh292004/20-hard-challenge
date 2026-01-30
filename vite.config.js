@@ -12,6 +12,12 @@ export default defineConfig({
     strictPort: false,
     open: true,
     cors: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
   },
   
   // Build configuration
