@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ChallengeProvider } from './context/ChallengeContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -16,7 +17,8 @@ const PrivateRoute = ({ children }) => {
 function App() {
   return (
     <ChallengeProvider>
-      <Router>
+      <NotificationProvider>
+        <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -35,7 +37,8 @@ function App() {
             }
           />
         </Routes>
-      </Router>
+        </Router>
+      </NotificationProvider>
     </ChallengeProvider>
   );
 }

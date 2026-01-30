@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useChallenge } from '../context/ChallengeContext';
+import { useNotification } from '../context/NotificationContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { setUser } = useChallenge();
+  const { notify } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,13 +23,14 @@ const Login = () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
+        notify(`Welcome back, ${data.user.name}. Session authenticated.`, 'success');
         navigate('/dashboard');
       } else {
-        alert(data.message);
+        notify(data.message || 'Login failed', 'error');
       }
     } catch (err) {
-      console.error(err);
-      alert('Login failed');
+      console.error('Login error:', err);
+      notify('Login failed. Please check your connection.', 'error');
     }
   };
 

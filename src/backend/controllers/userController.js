@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 import mongoose from 'mongoose';
-import { users } from '../data/mockDb.js';
+import { users, saveMockDb } from '../data/mockDb.js';
 
 export const getProfile = async (req, res) => {
   try {
@@ -40,6 +40,7 @@ export const updateProfile = async (req, res) => {
             const index = users.findIndex(u => u._id.toString() === req.user.id.toString());
             if (index > -1) {
                 users[index] = { ...users[index], ...req.body };
+                saveMockDb();
                 user = users[index];
             }
         }
@@ -47,6 +48,7 @@ export const updateProfile = async (req, res) => {
         const index = users.findIndex(u => u._id.toString() === req.user.id.toString());
         if (index > -1) {
             users[index] = { ...users[index], ...req.body };
+            saveMockDb();
             user = users[index];
         }
     }

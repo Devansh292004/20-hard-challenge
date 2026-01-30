@@ -14,7 +14,7 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5050',
         changeOrigin: true,
       },
     },
@@ -64,5 +64,11 @@ export default defineConfig({
   // Optimization
   optimizeDeps: {
     include: ['react', 'react-dom'],
+  },
+
+  // Vitest configuration
+  test: {
+    globals: true,
+    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**'],
   },
 })

@@ -28,13 +28,45 @@ export const calculateStreaks = (dailyLogs) => {
   return { currentStreak, longestStreak };
 };
 
-export const isDayComplete = (tasks) => {
+export const checkBadges = (challenge, user) => {
+  const newBadges = new Set(challenge.badges || []);
+  const initialCount = newBadges.size;
+
+  if (challenge.currentStreak >= 7) newBadges.add('7-day-streak');
+  if (challenge.currentStreak >= 30) newBadges.add('30-day-streak');
+
+  if (user && user.targetWeight && challenge.dailyLogs.length > 0) {
+    const latestLog = challenge.dailyLogs[challenge.dailyLogs.length - 1];
+    if (latestLog.tasks.weight && latestLog.tasks.weight <= user.targetWeight) {
+      newBadges.add('goal-reached');
+    }
+  }
+
+  if (challenge.longestStreak >= 14) newBadges.add('consistency-king');
+
+  return {
+    badges: Array.from(newBadges),
+    newlyAwarded: newBadges.size > initialCount
+  };
+};
+
+export const isDayComplete = (tasks, customTasks = []) => {
+  // Use a map if it's a Map object (from Mongoose)
+  const taskObj = tasks.get ? Object.fromEntries(tasks) : tasks;
+
+  if (customTasks && customTasks.length > 0) {
+    return customTasks
+      .filter(t => t.enabled)
+      .every(t => taskObj[t.id] === true);
+  }
+
+  // Default 20 Hard rules
   return (
-    tasks.workout1 &&
-    tasks.workout2 &&
-    tasks.water &&
-    tasks.diet &&
-    tasks.photo &&
-    tasks.reading
+    taskObj.workout1 &&
+    taskObj.workout2 &&
+    taskObj.water &&
+    taskObj.diet &&
+    taskObj.photo &&
+    taskObj.reading
   );
 };
