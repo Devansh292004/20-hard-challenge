@@ -42,7 +42,6 @@ export class WeightTracker {
    * Log a weight entry
    */
   logWeight(weight, date = new Date()) {
-    // Basic initialization for tests that skip the initialize() call
     if (!this.initialized && !this.startWeight) {
       this.startWeight = 80;
       this.goalWeight = 74;
@@ -66,32 +65,20 @@ export class WeightTracker {
     return entry;
   }
 
-  /**
-   * Getters for tests
-   */
   getRecords() { return this.entries; }
   getTarget() { return this.goalWeight; }
   getStartingWeight() { return this.startWeight; }
   
-  /**
-   * Setter for tests
-   */
   setTarget(target) {
     this.goalWeight = target;
     this.targetWeight = target;
   }
 
-  /**
-   * Get current weight
-   */
   getCurrentWeight() {
     if (this.entries.length === 0) return this.startWeight;
     return this.entries[this.entries.length - 1].weight;
   }
 
-  /**
-   * Get progress percentage
-   */
   getProgressPercentage() {
     if (this.entries.length === 0) return 0;
     const current = this.getCurrentWeight();
@@ -103,17 +90,11 @@ export class WeightTracker {
     return Math.min(Math.max(percentage, 0), 100);
   }
 
-  /**
-   * Get progress since last record
-   */
   getProgressSinceLast() {
     if (this.entries.length < 2) return null;
     return this.entries[this.entries.length - 2].weight - this.getCurrentWeight();
   }
 
-  /**
-   * Get weekly average
-   */
   getWeeklyAverage() {
     if (this.entries.length === 0) return 0;
     const last7 = this.entries.slice(-7);
@@ -121,41 +102,26 @@ export class WeightTracker {
     return sum / last7.length;
   }
 
-  /**
-   * Get remaining weight to lose
-   */
   getRemainingWeight() {
     const current = this.getCurrentWeight();
     const remaining = current - this.goalWeight;
     return Math.max(remaining, 0);
   }
 
-  /**
-   * Get average weight
-   */
   getAverageWeight() {
     if (this.entries.length === 0) return 0;
     const sum = this.entries.reduce((acc, entry) => acc + entry.weight, 0);
     return sum / this.entries.length;
   }
 
-  /**
-   * Get total weight loss
-   */
   getTotalWeightLoss() {
     return this.startWeight - this.getCurrentWeight();
   }
 
-  /**
-   * Check if target achieved
-   */
   isTargetAchieved() {
     return this.getCurrentWeight() <= this.goalWeight;
   }
 
-  /**
-   * Export as CSV for tests
-   */
   exportAsCSV() {
     const headers = 'Date,Weight
 ';
@@ -164,24 +130,15 @@ export class WeightTracker {
     return headers + rows;
   }
 
-  /**
-   * Export as JSON for tests
-   */
   exportAsJSON() {
     return JSON.stringify(this.entries);
   }
 
-  /**
-   * Get daily weight loss target
-   */
   getDailyTarget() {
     const totalToLose = this.startWeight - this.goalWeight;
     return totalToLose / this.targetDays;
   }
 
-  /**
-   * Validate progress
-   */
   isOffTrack() {
     if (this.entries.length === 0) return false;
     const daysPassed = this.entries.length;
