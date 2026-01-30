@@ -82,9 +82,20 @@ body.light-mode .card {
   width: 100%;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+
 /* Typography */
 h1, h2, h3, .luxury-text {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cinzel', 'Playfair Display', serif;
+}
+
+.luxury-header {
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  color: var(--luxury-gold);
+  margin-bottom: 2rem;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 10px rgba(218, 165, 32, 0.3);
 }
 
 .app-title {

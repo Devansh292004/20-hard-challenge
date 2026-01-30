@@ -10,8 +10,10 @@ This platform has been transformed from a personal tracker into a world-class pr
 
 *   **Luxury UI**: High-contrast "Elite Dark" theme with gold accents and cinematic typography.
 *   **Multi-User Support**: Secure account creation and data persistence for multiple challengers.
-*   **Performance Analytics**: Interactive charts for weight trends, water intake, and streak consistency.
-*   **Brutal Enforcement**: Real-time failure detection and non-negotiable streak resets.
+*   **Performance Analytics**: Interactive Chart.js visualizations for completion trends and consistency scores.
+*   **Physique Reporting**: Weight tracking with trend lines, goal progress, and transformation metrics.
+*   **Elite Community**: A live activity feed simulating a global network of high-performers.
+*   **Brutal Enforcement**: Automated streak failure logic—missed days are detected and logged as failures.
 
 ## 🚀 Architecture
 
@@ -58,9 +60,10 @@ The app will be available at `http://localhost:5173`. The API runs on `http://lo
 ## 📈 Key Features
 
 *   **Personal Dashboard**: Real-time streak tracking and daily objective checklist.
-*   **Physique Analytics**: Track weight trends with interactive visualization.
-*   **Social Proof**: Ready-to-share streak milestones.
-*   **Adaptive Backend**: Automatically handles local development or cloud deployment.
+*   **Advanced Analytics**: Deep dives into your performance history with interactive graphs.
+*   **Physique Tracker**: Monitor your physical transformation with weight trends and progress stats.
+*   **Elite Community**: Stay motivated with a global feed of achievements and community statistics.
+*   **Adaptive Backend**: Automatically handles local development or cloud deployment with MongoDB or Persistent File Storage.
 
 ## 📂 Project Structure
 

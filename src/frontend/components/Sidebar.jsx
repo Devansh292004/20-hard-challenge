@@ -1,8 +1,11 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useChallenge } from '../context/ChallengeContext';
 import ThemeToggle from './ThemeToggle';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useChallenge();
 
   const enableNotifications = () => {
@@ -30,10 +33,30 @@ const Sidebar = () => {
       </div>
 
       <nav className="side-nav">
-        <button className="nav-btn active">Dashboard</button>
-        <button className="nav-btn">Performance Analytics</button>
-        <button className="nav-btn">Physique Report</button>
-        <button className="nav-btn">Elite Community</button>
+        <button
+          className={`nav-btn ${location.pathname === '/dashboard' ? 'active' : ''}`}
+          onClick={() => navigate('/dashboard')}
+        >
+          Dashboard
+        </button>
+        <button
+          className={`nav-btn ${location.pathname === '/analytics' ? 'active' : ''}`}
+          onClick={() => navigate('/analytics')}
+        >
+          Performance Analytics
+        </button>
+        <button
+          className={`nav-btn ${location.pathname === '/physique' ? 'active' : ''}`}
+          onClick={() => navigate('/physique')}
+        >
+          Physique Report
+        </button>
+        <button
+          className={`nav-btn ${location.pathname === '/community' ? 'active' : ''}`}
+          onClick={() => navigate('/community')}
+        >
+          Elite Community
+        </button>
       </nav>
 
       <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -4,6 +4,9 @@ import { ChallengeProvider } from './context/ChallengeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
+import PerformanceAnalytics from './pages/PerformanceAnalytics';
+import PhysiqueReport from './pages/PhysiqueReport';
+import EliteCommunity from './pages/EliteCommunity';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import LandingPage from './pages/LandingPage';
@@ -31,6 +34,45 @@ function App() {
                   <Sidebar />
                   <main className="main-content">
                     <Dashboard />
+                  </main>
+                </div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <PrivateRoute>
+                <div className="app-layout">
+                  <Sidebar />
+                  <main className="main-content">
+                    <PerformanceAnalytics />
+                  </main>
+                </div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/physique"
+            element={
+              <PrivateRoute>
+                <div className="app-layout">
+                  <Sidebar />
+                  <main className="main-content">
+                    <PhysiqueReport />
+                  </main>
+                </div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/community"
+            element={
+              <PrivateRoute>
+                <div className="app-layout">
+                  <Sidebar />
+                  <main className="main-content">
+                    <EliteCommunity />
                   </main>
                 </div>
               </PrivateRoute>
