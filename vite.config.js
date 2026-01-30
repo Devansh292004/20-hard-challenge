@@ -69,6 +69,6 @@ export default defineConfig({
   // Vitest configuration
   test: {
     globals: true,
-    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**', '**/tests/*.spec.js'],
   },
 })
