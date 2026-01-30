@@ -36,6 +36,35 @@ class App {
   }
 
   /**
+   * Feedback UI Logic
+   */
+  showToast(message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = message;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 500);
+    }, 3000);
+  }
+
+  showCelebration() {
+    const overlay = document.getElementById('celebration-overlay');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  /**
    * Application State Management
    */
   loadApplicationState() {
@@ -77,7 +106,6 @@ class App {
   }
 
   showUpsellModal() {
-    // Logic for premium conversion
     console.log('Displaying Premium Upgrade offer...');
   }
 
@@ -85,11 +113,11 @@ class App {
     this.isPremium = true;
     this.saveApplicationState();
     this.render();
-    alert('Welcome to Elite Premium. Advanced analytics unlocked.');
+    this.showToast('Elite Premium Unlocked');
   }
 
   /**
-   * Advanced Feature: Data Export
+   * Data Management
    */
   exportData() {
     if (!this.isPremium) {
@@ -106,12 +134,12 @@ class App {
   }
 
   /**
-   * Core Logic: Task Management
+   * Event Handling
    */
   setupEventListeners() {
     document.addEventListener('change', (e) => {
       if (e.target.type === 'checkbox' && e.target.closest('.task-item')) {
-        this.processTaskUpdate();
+        this.processTaskUpdate(e.target);
       }
     });
 
@@ -123,7 +151,11 @@ class App {
     });
   }
 
-  processTaskUpdate() {
+  processTaskUpdate(checkbox) {
+    if (checkbox.checked) {
+      this.showToast('Objective Secured');
+    }
+
     const tasks = document.querySelectorAll('.task-item input[type="checkbox"]');
     const completed = document.querySelectorAll('.task-item input[type="checkbox"]:checked');
     
@@ -131,6 +163,7 @@ class App {
       this.currentStreak++;
       if (this.currentStreak > this.longestStreak) this.longestStreak = this.currentStreak;
       this.history.push({ date: new Date().toDateString(), type: 'completion' });
+      this.showCelebration();
     } else {
       this.currentStreak = 0;
     }
@@ -141,14 +174,16 @@ class App {
   }
 
   processWeightEntry() {
-    const weight = parseFloat(document.getElementById('weight-input').value);
+    const weightInput = document.getElementById('weight-input');
+    const weight = parseFloat(weightInput.value);
     const date = new Date(document.getElementById('date-input').value);
 
     try {
       this.weightTracker.logWeight(weight, date);
       this.saveApplicationState();
+      this.showToast('Physique Metric Logged');
+      weightInput.value = '';
       this.renderWeightSection();
-      this.renderAnalytics();
     } catch (e) {
       alert(e.message);
     }
@@ -167,14 +202,14 @@ class App {
           <div class="user-profile">
             <div class="avatar">${this.user ? this.user.name[0] : 'E'}</div>
             <div class="user-info">
-              <span class="user-name">${this.user ? this.user.name : 'Elite Athlete'}</span>
-              <span class="badge">${this.isPremium ? 'PREMIUM' : 'FREE TIER'}</span>
+              <div class="user-name">${this.user ? this.user.name : 'Elite Athlete'}</div>
+              <div class="badge">${this.isPremium ? 'PREMIUM' : 'FREE TIER'}</div>
             </div>
           </div>
           <nav class="side-nav">
             <button class="nav-btn active">Dashboard</button>
-            <button class="nav-btn" onclick="app.exportData()">Export Reports</button>
-            ${!this.isPremium ? `<button class="nav-btn premium-btn" onclick="app.handleUpgrade()">Upgrade to Pro</button>` : ''}
+            <button class="nav-btn" onclick="app.exportData()">Export Data</button>
+            ${!this.isPremium ? `<button class="nav-btn premium-btn" onclick="app.handleUpgrade()">Upgrade Pro</button>` : ''}
           </nav>
         </aside>
 
@@ -183,21 +218,21 @@ class App {
           
           <div class="content-grid">
             <section class="card tasks-card">
-              <h2 class="card-title">Daily Performance</h2>
+              <h2 class="card-title">Daily Objectives</h2>
               <div id="tasks-container"></div>
             </section>
             
             <section class="card weight-card">
-              <h2 class="card-title">Physique Tracking</h2>
+              <h2 class="card-title">Physique Analytics</h2>
               <div id="weight-container"></div>
             </section>
           </div>
 
           <section class="card analytics-card">
-            <h2 class="card-title">Advanced Analytics</h2>
+            <h2 class="card-title">Advanced Performance Insights</h2>
             <div id="analytics-container">
-              ${this.isPremium ? '<div class="chart-placeholder">Charting engine initialized... (Historical data active)</div>' : 
-              '<div class="premium-lock">Upgrade to Elite Premium to unlock historical charting and predictive trends.</div>'}
+              ${this.isPremium ? '<div style="color: #8a8a95; font-style: italic;">Historical performance active. Predictive modeling enabled.</div>' : 
+              '<div class="premium-lock" style="color: #daa520; font-weight: 600;">Upgrade to Elite Premium to unlock performance forecasting.</div>'}
             </div>
           </section>
         </main>
@@ -214,16 +249,16 @@ class App {
     if (!container) return;
     container.innerHTML = `
       <div class="metric-card">
-        <span class="metric-label">Current Streak</span>
-        <span class="metric-value highlight">${this.currentStreak}</span>
+        <span class="metric-label" style="color: #8a8a95; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Current Streak</span>
+        <span class="metric-value highlight">${this.currentStreak} Days</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">Personal Best</span>
-        <span class="metric-value">${this.longestStreak}</span>
+        <span class="metric-label" style="color: #8a8a95; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Personal Best</span>
+        <span class="metric-value">${this.longestStreak} Days</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">Efficiency</span>
-        <span class="metric-value">${this.history.length > 0 ? 'High' : 'N/A'}</span>
+        <span class="metric-label" style="color: #8a8a95; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Status</span>
+        <span class="metric-value" style="font-size: 24px;">Active Performance</span>
       </div>
     `;
   }
@@ -231,12 +266,12 @@ class App {
   renderTasks() {
     const container = document.getElementById('tasks-container');
     const tasks = [
-      { id: 'w1', label: 'Workout 1 (45m)' },
-      { id: 'w2', label: 'Workout 2 (45m Outdoor)' },
-      { id: 'water', label: 'Gallon of Water' },
-      { id: 'diet', label: 'Clean Diet' },
-      { id: 'photo', label: 'Progress Photo' },
-      { id: 'reading', label: 'Reading (10 pages)' }
+      { id: 'w1', label: 'Workout I (45 min)' },
+      { id: 'w2', label: 'Workout II (Outdoor)' },
+      { id: 'water', label: 'Hydration (Gallon)' },
+      { id: 'diet', label: 'Optimal Nutrition' },
+      { id: 'photo', label: 'Physique Evidence' },
+      { id: 'reading', label: 'Knowledge (10 pages)' }
     ];
 
     container.innerHTML = `<div class="tasks-grid">${tasks.map(t => `
@@ -249,19 +284,18 @@ class App {
 
   renderWeightSection() {
     const container = document.getElementById('weight-container');
-    const current = this.weightTracker.getCurrentWeight();
     const progress = this.weightTracker.getProgressPercentage();
 
     container.innerHTML = `
-      <div class="weight-content">
+      <div class="weight-content" style="display: flex; align-items: center; gap: 40px;">
         <div class="stat-circle">
           <span class="circle-val">${progress.toFixed(1)}%</span>
-          <span class="circle-label">to Target</span>
+          <span class="circle-label" style="font-size: 12px; color: #8a8a95; text-transform: uppercase; font-weight: 600;">Progress</span>
         </div>
-        <form id="weight-form" class="prod-form">
-          <input type="number" id="weight-input" placeholder="Current Weight (kg)" step="0.1" required>
-          <input type="date" id="date-input" value="${new Date().toISOString().split('T')[0]}" required>
-          <button type="submit" class="btn-primary">Log Physique</button>
+        <form id="weight-form" class="prod-form" style="flex: 1;">
+          <input type="number" id="weight-input" placeholder="Weight (kg)" step="0.1" required style="width: 100%;">
+          <input type="date" id="date-input" value="${new Date().toISOString().split('T')[0]}" required style="width: 100%;">
+          <button type="submit" class="btn-primary" style="width: 100%;">Log Entry</button>
         </form>
       </div>
     `;
