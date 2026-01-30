@@ -1,194 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>20 Hard Challenge - Accountability App</title>
-  <link rel="stylesheet" href="./src/ui/styles.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-width: 900px;
-      width: 100%;
-      padding: 40px;
-    }
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 2.5em;
-    }
-    .tagline {
-      color: #666;
-      margin-bottom: 30px;
-      font-size: 1.1em;
-    }
-    .app-root {
-      min-height: 200px;
-    }
-    
-    /* Section styles */
-    section {
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: #f9fafb;
-      border-radius: 8px;
-    }
-    
-    .section-header h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: #333;
-    }
-    
-    /* Streak styles */
-    .streak-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    
-    .streak-card {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      text-align: center;
-    }
-    
-    .streak-label {
-      font-size: 0.9rem;
-      opacity: 0.9;
-      margin-bottom: 0.5rem;
-    }
-    
-    .streak-value {
-      font-size: 2.5rem;
-      font-weight: bold;
-    }
-    
-    /* Tasks styles */
-    .task-item {
-      padding: 1rem;
-      margin-bottom: 0.5rem;
-      background: white;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    .task-item label {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      cursor: pointer;
-      flex: 1;
-    }
-    
-    .task-checkbox {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
-    
-    /* Weight tracking styles */
-    .weight-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .stat-card {
-      background: white;
-      padding: 1rem;
-      border-radius: 6px;
-      text-align: center;
-    }
-    
-    .stat-label {
-      color: #666;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .stat-value {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #667eea;
-    }
-    
-    /* Form styles */
-    .weight-form {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-    }
-    
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #333;
-      font-weight: 500;
-    }
-    
-    .form-group input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e5e7eb;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-    
-    .form-group input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: transform 0.2s;
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20 Hard Challenge — Elite Performance System</title>
+    <link rel="stylesheet" href="./src/ui/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            color: #e8e8e8;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(218, 165, 32, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(218, 165, 32, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            background: linear-gradient(135deg, rgba(25, 25, 40, 0.95) 0%, rgba(18, 18, 30, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4),
+                        0 0 1px rgba(218, 165, 32, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(218, 165, 32, 0.15);
+            max-width: 1200px;
+            width: 100%;
+            padding: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            border-bottom: 1px solid rgba(218, 165, 32, 0.1);
+            padding-bottom: 40px;
+        }
+
+        .title {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #daa520 0%, #ffd700 50%, #daa520 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            text-shadow: 0 0 40px rgba(218, 165, 32, 0.2);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            color: #b8b8c0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #daa520;
+            margin-bottom: 30px;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 32px;
+            background: linear-gradient(180deg, #daa520 0%, transparent 100%);
+            border-radius: 2px;
+        }
+
+        .streak-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .streak-card {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.05) 0%, rgba(218, 165, 32, 0.02) 100%);
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .streak-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(218, 165, 32, 0.5) 50%, transparent 100%);
+        }
+
+        .streak-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(218, 165, 32, 0.15);
+            border-color: rgba(218, 165, 32, 0.4);
+        }
+
+        .streak-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #8a8a95;
+            margin-bottom: 16px;
+        }
+
+        .streak-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #daa520 0%, #ffd700 50%, #daa520 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .tasks-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .task-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.05) 0%, rgba(218, 165, 32, 0.02) 100%);
+            border-color: rgba(218, 165, 32, 0.3);
+            transform: translateX(4px);
+        }
+
+        .task-item input[type="checkbox"] {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(218, 165, 32, 0.4);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .task-item input[type="checkbox"]:checked {
+            background: linear-gradient(135deg, #daa520 0%, #ffd700 100%);
+            border-color: #daa520;
+        }
+
+        .task-item input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .task-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #e8e8e8;
+            letter-spacing: 0.3px;
+        }
+
+        .weight-section {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.03) 0%, rgba(218, 165, 32, 0.01) 100%);
+            border: 1px solid rgba(218, 165, 32, 0.15);
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 20px;
+        }
+
+        .weight-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #8a8a95;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #daa520;
+        }
+
+        .weight-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #8a8a95;
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 16px;
+            color: #e8e8e8;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(218, 165, 32, 0.5);
+            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #daa520 0%, #b8941e 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 32px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 20px rgba(218, 165, 32, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(218, 165, 32, 0.4);
+            background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 24px;
+            }
+
+            .title {
+                font-size: 36px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .weight-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔥 20 Hard Challenge</h1>
-    <p class="tagline">A brutal, discipline-enforced accountability system</p>
-    <div id="app-root" class="app-root"></div>
-  </div>
-  <script type="module" src="./src/main.js"></script>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">20 Hard Challenge</h1>
+            <p class="subtitle">Elite Performance System</p>
+        </div>
+
+        <div id="app-root"></div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
 </body>
 </html>
