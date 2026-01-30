@@ -18,6 +18,46 @@ export const getChallenge = async (req, res) => {
       challenge = challenges.find(c => c.userId.toString() === req.user.id.toString());
     }
 
+    if (challenge) {
+      // Auto-fail missed days
+      const today = new Date();
+      const sortedLogs = [...challenge.dailyLogs].sort((a, b) => a.date.localeCompare(b.date));
+
+      if (sortedLogs.length > 0) {
+        const lastLogDate = new Date(sortedLogs[sortedLogs.length - 1].date);
+        const currentDate = new Date(lastLogDate);
+        currentDate.setDate(currentDate.getDate() + 1);
+
+        const serverToday = new Date(today.toISOString().split('T')[0]);
+
+        let modified = false;
+        while (currentDate < serverToday) {
+          const dateStr = currentDate.toISOString().split('T')[0];
+          if (!challenge.dailyLogs.find(l => l.date === dateStr)) {
+            challenge.dailyLogs.push({
+              date: dateStr,
+              tasks: {},
+              status: 'failed'
+            });
+            modified = true;
+          }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        if (modified) {
+          const { currentStreak, longestStreak } = calculateStreaks(challenge.dailyLogs);
+          challenge.currentStreak = currentStreak;
+          challenge.longestStreak = longestStreak;
+
+          if (challenge.save && mongoose.connection.readyState === 1) {
+            await challenge.save();
+          } else {
+            saveMockDb();
+          }
+        }
+      }
+    }
+
     if (!challenge) {
       const initialData = {
         userId: req.user.id,
@@ -61,6 +101,15 @@ export const getChallenge = async (req, res) => {
 export const updateCustomTasks = async (req, res) => {
   try {
     const { customTasks } = req.body;
+
+    // Core tasks that must always be enabled for 20 Hard Challenge
+    const coreTasks = ['workout1', 'workout2', 'diet', 'water', 'reading', 'photo'];
+    const invalid = customTasks.some(t => coreTasks.includes(t.id) && !t.enabled);
+
+    if (invalid) {
+      return res.status(400).json({ message: 'Core 20 Hard tasks cannot be disabled. Elite athletes do not compromise.' });
+    }
+
     let challenge;
     if (mongoose.connection.readyState === 1) {
       challenge = await Challenge.findOneAndUpdate(
@@ -88,6 +137,25 @@ export const updateCustomTasks = async (req, res) => {
 export const updateDailyLog = async (req, res) => {
   try {
     const { date, tasks } = req.body;
+
+    // Cheating-Proofing
+    const today = new Date();
+    const serverTodayDate = today.toISOString().split('T')[0];
+
+    // Disallow future logs
+    if (date > serverTodayDate) {
+      return res.status(400).json({ message: 'Cannot log for future dates. Stay present, Athlete.' });
+    }
+
+    // Allow logging only for today or yesterday (grace period)
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const serverYesterdayDate = yesterday.toISOString().split('T')[0];
+
+    if (date < serverYesterdayDate) {
+      return res.status(400).json({ message: 'The window for this day has closed. Elite performance requires immediate accountability.' });
+    }
+
     let challenge;
     try {
       if (mongoose.connection.readyState === 1) {

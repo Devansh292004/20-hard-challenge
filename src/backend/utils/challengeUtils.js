@@ -33,6 +33,7 @@ export const checkBadges = (challenge, user) => {
   const initialCount = newBadges.size;
 
   if (challenge.currentStreak >= 7) newBadges.add('7-day-streak');
+  if (challenge.currentStreak >= 20) newBadges.add('20-day-streak');
   if (challenge.currentStreak >= 30) newBadges.add('30-day-streak');
 
   if (user && user.targetWeight && challenge.dailyLogs.length > 0) {

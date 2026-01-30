@@ -2,6 +2,7 @@ import React from 'react';
 
 const BADGE_MAP = {
   '7-day-streak': { label: '7 Day Warrior', icon: '🔥', color: '#ff4500' },
+  '20-day-streak': { label: 'Elite Finisher', icon: '🎖️', color: '#d4af37' },
   '30-day-streak': { label: 'Monthly Master', icon: '🏆', color: '#ffd700' },
   'goal-reached': { label: 'Weight Goal Hit', icon: '🎯', color: '#00ced1' },
   'early-bird': { label: 'Early Bird', icon: '🌅', color: '#ffa500' },
