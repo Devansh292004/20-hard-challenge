@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import StreakDisplay from '../components/StreakDisplay';
 import DailyChecklist from '../components/DailyChecklist';
 import WeightTracker from '../components/WeightTracker';
 import ActivityGrid from '../components/ActivityGrid';
 import CommunityFeed from '../components/CommunityFeed';
+import BadgeDisplay from '../components/BadgeDisplay';
 import { useChallenge } from '../context/ChallengeContext';
+import { useNotification } from '../context/NotificationContext';
 
 const Dashboard = () => {
   const { user, challenge, setChallenge } = useChallenge();
+  const { notify } = useNotification();
+  const welcomeShown = useRef(false);
 
   useEffect(() => {
     const fetchChallenge = async () => {
@@ -19,7 +23,13 @@ const Dashboard = () => {
         });
         if (response.ok) {
           const data = await response.json();
-          setChallenge(data);
+          setChallenge(prev => {
+              if (prev && data.badges.length > prev.badges.length) {
+                  const newBadge = data.badges[data.badges.length - 1];
+                  notify(`🏆 Milestone Unlocked: ${newBadge.replace(/-/g, ' ').toUpperCase()}!`, 'success');
+              }
+              return data;
+          });
         }
       } catch (err) {
         console.error('Failed to fetch challenge', err);
@@ -28,14 +38,20 @@ const Dashboard = () => {
 
     if (user) {
       fetchChallenge();
+      if (!welcomeShown.current) {
+        notify('Welcome back, Athlete! Stay focused on your goals today.', 'info');
+        welcomeShown.current = true;
+      }
     }
-  }, [user, setChallenge]);
+  }, [user, setChallenge, notify]);
 
   if (!challenge) return <div className="luxury-text">Accessing Elite Performance Data...</div>;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
       <StreakDisplay streakData={{ currentStreak: challenge.currentStreak, longestStreak: challenge.longestStreak }} />
+
+      <BadgeDisplay badges={challenge.badges} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
         <DailyChecklist />

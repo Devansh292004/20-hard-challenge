@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateStreaks, isDayComplete } from '../src/backend/utils/challengeUtils.js';
+import { calculateStreaks, isDayComplete, checkBadges } from '../src/backend/utils/challengeUtils.js';
 
 describe('challengeUtils', () => {
   it('should correctly determine if a day is complete', () => {
@@ -66,5 +66,35 @@ describe('challengeUtils', () => {
     const { currentStreak, longestStreak } = calculateStreaks(dailyLogs);
     expect(currentStreak).toBe(0);
     expect(longestStreak).toBe(1);
+  });
+
+  describe('checkBadges', () => {
+    it('should award 7-day-streak badge', () => {
+      const challenge = { currentStreak: 7, badges: [] };
+      const { badges } = checkBadges(challenge);
+      expect(badges).toContain('7-day-streak');
+    });
+
+    it('should award goal-reached badge', () => {
+      const user = { targetWeight: 75 };
+      const challenge = {
+        currentStreak: 1,
+        badges: [],
+        dailyLogs: [{ tasks: { weight: 74 } }]
+      };
+      const { badges } = checkBadges(challenge, user);
+      expect(badges).toContain('goal-reached');
+    });
+
+    it('should not award goal-reached if weight is higher than target', () => {
+      const user = { targetWeight: 75 };
+      const challenge = {
+        currentStreak: 1,
+        badges: [],
+        dailyLogs: [{ tasks: { weight: 76 } }]
+      };
+      const { badges } = checkBadges(challenge, user);
+      expect(badges).not.toContain('goal-reached');
+    });
   });
 });

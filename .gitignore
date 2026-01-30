@@ -11,6 +11,7 @@ build/
 
 # Environment variables
 .env
+src/backend/data/mock_persistence.json
 .env.local
 .env.development.local
 .env.test.local

@@ -2,7 +2,7 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { users, generateMockId } from '../data/mockDb.js';
+import { users, generateMockId, saveMockDb } from '../data/mockDb.js';
 
 export const signup = async (req, res) => {
   try {
@@ -53,6 +53,7 @@ export const signup = async (req, res) => {
             user = dbUser;
         } else {
             users.push(mockUser);
+            saveMockDb();
             user = mockUser;
         }
     } catch (e) {
@@ -60,15 +61,21 @@ export const signup = async (req, res) => {
         // Ensure the mockUser isn't already there (unlikely but safe)
         if (!users.find(u => u.email === email)) {
             users.push(mockUser);
+            saveMockDb();
         }
         user = users.find(u => u.email === email) || mockUser;
     }
 
     if (!user) {
+        console.error('User creation failed - user object is null');
         throw new Error('Failed to create user');
     }
 
+    console.log('User created successfully:', user._id);
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'supersecret', { expiresIn: '7d' });
+
+    console.log('Token generated for user:', user._id);
 
     res.status(201).json({
       token,

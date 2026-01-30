@@ -1,7 +1,8 @@
 import Challenge from '../models/Challenge.js';
-import { calculateStreaks, isDayComplete } from '../utils/challengeUtils.js';
+import User from '../models/User.js';
+import { calculateStreaks, isDayComplete, checkBadges } from '../utils/challengeUtils.js';
 import mongoose from 'mongoose';
-import { challenges } from '../data/mockDb.js';
+import { challenges, users, saveMockDb } from '../data/mockDb.js';
 
 export const getChallenge = async (req, res) => {
   try {
@@ -22,7 +23,16 @@ export const getChallenge = async (req, res) => {
         userId: req.user.id,
         currentStreak: 0,
         longestStreak: 0,
-        dailyLogs: []
+        dailyLogs: [],
+        badges: [],
+        customTasks: [
+          { id: 'workout1', label: 'Workout I (45 min)', enabled: true },
+          { id: 'workout2', label: 'Workout II (45 min)', enabled: true },
+          { id: 'diet', label: 'Stick to Elite Diet', enabled: true },
+          { id: 'water', label: 'Drink 4L Water', enabled: true },
+          { id: 'reading', label: 'Read 10 Pages', enabled: true },
+          { id: 'photo', label: 'Progress Photo', enabled: true }
+        ]
       };
       try {
         if (mongoose.connection.readyState === 1) {
@@ -32,16 +42,45 @@ export const getChallenge = async (req, res) => {
         } else {
           challenge = { ...initialData };
           challenges.push(challenge);
+          saveMockDb();
         }
       } catch (e) {
         console.error('Create challenge error, falling back to mock:', e.message);
         challenge = { ...initialData };
         challenges.push(challenge);
+        saveMockDb();
       }
     }
     res.json(challenge);
   } catch (err) {
     console.error('getChallenge catastrophic failure:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const updateCustomTasks = async (req, res) => {
+  try {
+    const { customTasks } = req.body;
+    let challenge;
+    if (mongoose.connection.readyState === 1) {
+      challenge = await Challenge.findOneAndUpdate(
+        { userId: req.user.id },
+        { customTasks },
+        { new: true }
+      );
+    } else {
+      const index = challenges.findIndex(c => c.userId.toString() === req.user.id.toString());
+      if (index > -1) {
+        challenges[index].customTasks = customTasks;
+        challenge = challenges[index];
+        saveMockDb();
+      }
+    }
+
+    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    res.json(challenge);
+  } catch (err) {
+    console.error('updateCustomTasks failure:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -61,8 +100,9 @@ export const updateDailyLog = async (req, res) => {
     }
 
     if (!challenge) {
-      challenge = { userId: req.user.id, dailyLogs: [], currentStreak: 0, longestStreak: 0 };
+      challenge = { userId: req.user.id, dailyLogs: [], currentStreak: 0, longestStreak: 0, badges: [] };
       challenges.push(challenge);
+      saveMockDb();
     }
 
     const logIndex = challenge.dailyLogs.findIndex(log => log.date === date);
@@ -76,7 +116,7 @@ export const updateDailyLog = async (req, res) => {
     }
 
     // Determine status
-    if (isDayComplete(log.tasks)) {
+    if (isDayComplete(log.tasks, challenge.customTasks)) {
       log.status = 'completed';
     } else {
       const values = Object.values(log.tasks);
@@ -93,12 +133,29 @@ export const updateDailyLog = async (req, res) => {
     challenge.currentStreak = currentStreak;
     challenge.longestStreak = longestStreak;
 
+    // Check for badges
+    let user;
+    try {
+        if (mongoose.connection.readyState === 1) {
+            user = await User.findById(req.user.id);
+        } else {
+            user = users.find(u => u._id.toString() === req.user.id.toString());
+        }
+    } catch (e) {
+        user = users.find(u => u._id.toString() === req.user.id.toString());
+    }
+    const { badges } = checkBadges(challenge, user);
+    challenge.badges = badges;
+
     try {
       if (challenge.save && mongoose.connection.readyState === 1) {
         await challenge.save();
+      } else {
+        saveMockDb();
       }
     } catch (e) {
       console.error('updateDailyLog save error:', e.message);
+      saveMockDb();
     }
 
     res.json(challenge);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useChallenge } from '../context/ChallengeContext';
+import { useNotification } from '../context/NotificationContext';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -10,6 +11,7 @@ const Signup = () => {
   const [targetWeight, setTargetWeight] = useState('');
   const navigate = useNavigate();
   const { setUser } = useChallenge();
+  const { notify } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,13 +32,14 @@ const Signup = () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
+        notify('Account created successfully! Welcome to the Elite Performance tier.', 'success');
         navigate('/dashboard');
       } else {
-        alert(data.message);
+        notify(data.message || 'Signup failed', 'error');
       }
     } catch (err) {
-      console.error(err);
-      alert('Signup failed');
+      console.error('Signup error:', err);
+      notify(`Signup failed: ${err.message || 'Connection error'}`, 'error');
     }
   };
 
