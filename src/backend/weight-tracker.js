@@ -38,10 +38,25 @@ export class WeightTracker {
     if (!this.initialized) {
       throw new Error('Tracker not initialized');
     }
+
+    const weightVal = parseFloat(weight);
+    if (isNaN(weightVal) || weightVal <= 0 || weightVal >= 500) {
+      throw new Error('Invalid weight value');
+    }
+
+    if (date === null) {
+      throw new Error('Invalid date');
+    }
+
+    const dateVal = new Date(date);
+    if (isNaN(dateVal.getTime())) {
+      throw new Error('Invalid date');
+    }
+
     const entry = {
-      weight: parseFloat(weight),
-      date: new Date(date),
-      timestamp: new Date(date).getTime()
+      weight: weightVal,
+      date: dateVal,
+      timestamp: dateVal.getTime()
     };
     this.entries.push(entry);
     this.entries.sort((a, b) => a.timestamp - b.timestamp);
@@ -73,12 +88,21 @@ export class WeightTracker {
     return this.startWeight;
   }
 
-  getGoalWeight() {
-    return this.goalWeight;
+  getStartingWeight() {
+    if (this.entries.length === 0) return this.startWeight;
+    return this.entries[0].weight;
   }
 
-  getTargetWeight() {
-    return this.goalWeight;
+  getGoalWeight() {
+    return this.targetWeight;
+  }
+
+  getTarget() {
+    return this.targetWeight;
+  }
+
+  setTarget(weight) {
+    this.targetWeight = weight;
   }
 
   getCurrentWeight() {
@@ -86,12 +110,34 @@ export class WeightTracker {
     return this.entries[this.entries.length - 1].weight;
   }
 
+  getRemainingWeight() {
+    return Math.max(0, this.getCurrentWeight() - this.targetWeight);
+  }
+
   getTotalWeightLoss() {
-    return this.startWeight - this.getCurrentWeight();
+    return this.getStartingWeight() - this.getCurrentWeight();
   }
 
   isTargetAchieved() {
-    return this.getCurrentWeight() <= this.goalWeight;
+    return this.getCurrentWeight() <= this.targetWeight;
+  }
+
+  getAverageWeight() {
+    if (this.entries.length === 0) return this.startWeight;
+    const sum = this.entries.reduce((acc, curr) => acc + curr.weight, 0);
+    return sum / this.entries.length;
+  }
+
+  getProgressSinceLast() {
+    if (this.entries.length < 2) return null;
+    return this.entries[this.entries.length - 1].weight - this.entries[this.entries.length - 2].weight;
+  }
+
+  getWeeklyAverage() {
+    if (this.entries.length === 0) return 0;
+    const last7 = this.entries.slice(-7);
+    const sum = last7.reduce((acc, curr) => acc + curr.weight, 0);
+    return sum / last7.length;
   }
 
   exportAsCSV() {
@@ -118,8 +164,9 @@ export class WeightTracker {
   }
 
   getProgressPercentage() {
-    const totalToLose = this.startWeight - this.goalWeight;
-    const currentLoss = this.getTotalWeightLoss();
-    return (currentLoss / totalToLose) * 100;
+    const totalToLose = this.getStartingWeight() - this.targetWeight;
+    if (totalToLose === 0) return 100;
+    const currentLoss = this.getStartingWeight() - this.getCurrentWeight();
+    return Math.min(100, (currentLoss / totalToLose) * 100);
   }
 }
