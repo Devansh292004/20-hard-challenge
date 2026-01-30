@@ -6,6 +6,7 @@ describe('Weight Tracker', () => {
 
   beforeEach(() => {
     tracker = new WeightTracker();
+        tracker.initialize(80, 75, 20);
   });
 
   describe('Initialization', () => {
