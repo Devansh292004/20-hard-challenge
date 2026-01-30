@@ -1,18 +1,17 @@
 import { Enforcement } from './backend/enforcement.js';
 import { WeightTracker } from './backend/weight-tracker.js';
 import { validateUserInput } from './backend/validators.js';
-import { userProfile } from './data/user-profile.json' assert { type: 'json' };
 
 /**
  * 20 Hard Challenge Accountability App
  * A brutal, discipline-enforced accountability system
  */
-
 class App {
   constructor() {
     this.enforcement = new Enforcement();
     this.weightTracker = new WeightTracker();
-    this.userProfile = userProfile;
+    this.currentStreak = 0;
+    this.longestStreak = 0;
     this.initialized = false;
   }
 
@@ -23,8 +22,8 @@ class App {
     try {
       console.log('Initializing 20 Hard Challenge App...');
       
-      // Load user data
-      this.loadUserData();
+      // Initialize weight tracker
+      this.weightTracker.initialize(80, 74, 20);
       
       // Setup event listeners
       this.setupEventListeners();
@@ -36,23 +35,55 @@ class App {
       console.log('App initialized successfully');
     } catch (error) {
       console.error('Failed to initialize app:', error);
-      this.showError('Failed to initialize application');
+      this.showError('Failed to initialize application: ' + error.message);
     }
-  }
-
-  /**
-   * Load user profile data
-   */
-  loadUserData() {
-    console.log('Loading user profile:', this.userProfile);
-    // User profile loaded from JSON
   }
 
   /**
    * Setup event listeners
    */
   setupEventListeners() {
-    // Setup any global event listeners here
+    // Weight form submission
+    document.addEventListener('submit', (e) => {
+      if (e.target.id === 'weight-form') {
+        e.preventDefault();
+        this.handleWeightSubmit(e);
+      }
+    });
+
+    // Task checkbox changes
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('task-checkbox')) {
+        this.handleTaskChange(e);
+      }
+    });
+  }
+
+  /**
+   * Handle weight form submission
+   */
+  handleWeightSubmit(e) {
+    try {
+      const formData = new FormData(e.target);
+      const weight = parseFloat(formData.get('weight'));
+      const date = new Date(formData.get('date'));
+
+      this.weightTracker.addRecord(weight, date);
+      this.render(); // Re-render to show updated stats
+      e.target.reset();
+    } catch (error) {
+      alert('Error adding weight: ' + error.message);
+    }
+  }
+
+  /**
+   * Handle task checkbox change
+   */
+  handleTaskChange(e) {
+    const taskName = e.target.dataset.task;
+    const completed = e.target.checked;
+    console.log(`Task ${taskName} ${completed ? 'completed' : 'uncompleted'}`);
+    // Update streak logic here
   }
 
   /**
@@ -73,13 +104,9 @@ class App {
     mainContainer.className = 'main-container';
 
     // Create sections
-    const streakSection = this.createStreakSection();
-    const tasksSection = this.createTasksSection();
-    const weightSection = this.createWeightSection();
-
-    mainContainer.appendChild(streakSection);
-    mainContainer.appendChild(tasksSection);
-    mainContainer.appendChild(weightSection);
+    mainContainer.appendChild(this.createStreakSection());
+    mainContainer.appendChild(this.createTasksSection());
+    mainContainer.appendChild(this.createWeightSection());
 
     appRoot.appendChild(mainContainer);
   }
@@ -92,11 +119,17 @@ class App {
     section.className = 'streak-section';
     section.innerHTML = `
       <div class="section-header">
-        <h2>Current Streak</h2>
+        <h2>🔥 Streak Status</h2>
       </div>
       <div class="streak-content">
-        <p>Current: ${this.enforcement.getCurrentStreak()} days</p>
-        <p>Longest: ${this.enforcement.getLongestStreak()} days</p>
+        <div class="streak-card">
+          <div class="streak-label">Current Streak</div>
+          <div class="streak-value">${this.currentStreak} days</div>
+        </div>
+        <div class="streak-card">
+          <div class="streak-label">Longest Streak</div>
+          <div class="streak-value">${this.longestStreak} days</div>
+        </div>
       </div>
     `;
     return section;
@@ -106,16 +139,43 @@ class App {
    * Create tasks section
    */
   createTasksSection() {
+    const tasks = [
+      { id: 'workout1', label: '🏋️ Workout 1 (45 min)', name: 'workout1' },
+      { id: 'workout2', label: '🏃 Workout 2 (45 min, outdoor)', name: 'workout2' },
+      { id: 'water', label: '💧 Gallon of Water', name: 'water' },
+      { id: 'diet', label: '🥗 Vegetarian Diet', name: 'diet' },
+      { id: 'photo', label: '📷 Progress Photo', name: 'photo' },
+      { id: 'reading', label: '📚 Reading (10 pages)', name: 'reading' }
+    ];
+
     const section = document.createElement('section');
     section.className = 'tasks-section';
-    section.innerHTML = `
+    
+    let tasksHTML = `
       <div class="section-header">
-        <h2>Daily Tasks</h2>
+        <h2>📋 Daily Tasks</h2>
       </div>
       <div class="tasks-content">
-        <p>Tasks tracking coming soon...</p>
-      </div>
     `;
+
+    tasks.forEach(task => {
+      tasksHTML += `
+        <div class="task-item">
+          <label>
+            <input 
+              type="checkbox" 
+              class="task-checkbox" 
+              data-task="${task.name}"
+              id="${task.id}"
+            >
+            <span>${task.label}</span>
+          </label>
+        </div>
+      `;
+    });
+
+    tasksHTML += '</div>';
+    section.innerHTML = tasksHTML;
     return section;
   }
 
@@ -123,15 +183,60 @@ class App {
    * Create weight tracking section
    */
   createWeightSection() {
+    const stats = this.weightTracker.getStatistics();
+    const current = this.weightTracker.getCurrentWeight();
+    const target = this.weightTracker.getTarget();
+
     const section = document.createElement('section');
     section.className = 'weight-section';
     section.innerHTML = `
       <div class="section-header">
-        <h2>Weight Tracking</h2>
+        <h2>⚖️ Weight Tracking</h2>
       </div>
       <div class="weight-content">
-        <p>Target: ${this.userProfile.weightLossTarget}kg</p>
-        <p>Tracking coming soon...</p>
+        <div class="weight-stats">
+          <div class="stat-card">
+            <div class="stat-label">Current</div>
+            <div class="stat-value">${current || 'No data'}kg</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Target</div>
+            <div class="stat-value">${target}kg</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Progress</div>
+            <div class="stat-value">${stats.progress.toFixed(1)}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Remaining</div>
+            <div class="stat-value">${stats.remaining.toFixed(1)}kg</div>
+          </div>
+        </div>
+        <form id="weight-form" class="weight-form">
+          <div class="form-group">
+            <label for="weight-input">Weight (kg):</label>
+            <input 
+              type="number" 
+              id="weight-input" 
+              name="weight" 
+              step="0.1" 
+              min="20" 
+              max="300" 
+              required
+            >
+          </div>
+          <div class="form-group">
+            <label for="date-input">Date:</label>
+            <input 
+              type="date" 
+              id="date-input" 
+              name="date" 
+              value="${new Date().toISOString().split('T')[0]}"
+              required
+            >
+          </div>
+          <button type="submit" class="btn-primary">Log Weight</button>
+        </form>
       </div>
     `;
     return section;
@@ -143,7 +248,12 @@ class App {
   showError(message) {
     const appRoot = document.getElementById('app-root');
     if (appRoot) {
-      appRoot.innerHTML = `<div class="error-message">${message}</div>`;
+      appRoot.innerHTML = `
+        <div class="error-message">
+          <h3>❌ Error</h3>
+          <p>${message}</p>
+        </div>
+      `;
     }
   }
 }
