@@ -46,7 +46,7 @@ npm install
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`. The API runs on `http://localhost:5000`.
+The app will be available at `http://localhost:5173`. The API runs on `http://localhost:5050`.
 
 ## 📜 Challenge Rules (The "Hard" in 20 Hard)
 
