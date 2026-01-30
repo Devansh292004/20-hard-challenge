@@ -4,7 +4,7 @@ import { validateUserInput } from './backend/validators.js';
 
 /**
  * 20 Hard Challenge Accountability App
- * A brutal, discipline-enforced accountability system
+ * Elite performance tracking system
  */
 class App {
   constructor() {
@@ -21,253 +21,284 @@ class App {
   async init() {
     try {
       console.log('Initializing 20 Hard Challenge App...');
-      
+
       // Initialize weight tracker
       this.weightTracker.initialize(80, 74, 20);
-      
+
       // Setup event listeners
-      this.setupEventListeners();
-      
-      // Render initial UI
+      this.setupTaskListeners();
+      this.setupWeightTracking();
+
+      // Load saved data from localStorage
+      this.loadFromStorage();
+
+      // Render the UI
       this.render();
-      
+
       this.initialized = true;
       console.log('App initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize app:', error);
-      this.showError('Failed to initialize application: ' + error.message);
+      console.error('Initialization error:', error);
     }
   }
 
   /**
-   * Setup event listeners
+   * Load data from localStorage
    */
-  setupEventListeners() {
-    // Weight form submission
-    document.addEventListener('submit', (e) => {
-      if (e.target.id === 'weight-form') {
-        e.preventDefault();
-        this.handleWeightSubmit(e);
-      }
-    });
+  loadFromStorage() {
+    try {
+      const savedData = localStorage.getItem('20hard_data');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        this.currentStreak = data.currentStreak || 0;
+        this.longestStreak = data.longestStreak || 0;
+        
+        // Load weight tracker data
+        if (data.weightData) {
+          this.weightTracker.entries = data.weightData.map(entry => ({
+            ...entry,
+            date: new Date(entry.date)
+          }));
+        }
 
-    // Task checkbox changes
+        // Load task completion for today
+        const today = new Date().toDateString();
+        if (data.lastCompletionDate === today && data.completedTasks) {
+          data.completedTasks.forEach(taskId => {
+            const checkbox = document.getElementById(taskId);
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading from storage:', error);
+    }
+  }
+
+  /**
+   * Save data to localStorage
+   */
+  saveToStorage() {
+    try {
+      const completedTasks = Array.from(document.querySelectorAll('.task-item input[type="checkbox"]:checked'))
+        .map(cb => cb.id);
+
+      const data = {
+        currentStreak: this.currentStreak,
+        longestStreak: this.longestStreak,
+        weightData: this.weightTracker.entries,
+        completedTasks: completedTasks,
+        lastCompletionDate: new Date().toDateString()
+      };
+
+      localStorage.setItem('20hard_data', JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving to storage:', error);
+    }
+  }
+
+  /**
+   * Setup task checkbox listeners
+   */
+  setupTaskListeners() {
     document.addEventListener('change', (e) => {
-      if (e.target.classList.contains('task-checkbox')) {
-        this.handleTaskChange(e);
+      if (e.target.type === 'checkbox' && e.target.closest('.task-item')) {
+        this.handleTaskToggle();
       }
     });
+  }
+
+  /**
+   * Handle task checkbox toggle
+   */
+  handleTaskToggle() {
+    const allTasks = document.querySelectorAll('.task-item input[type="checkbox"]');
+    const completedTasks = document.querySelectorAll('.task-item input[type="checkbox"]:checked');
+    
+    const allComplete = allTasks.length > 0 && allTasks.length === completedTasks.length;
+    
+    if (allComplete) {
+      this.currentStreak++;
+      if (this.currentStreak > this.longestStreak) {
+        this.longestStreak = this.currentStreak;
+      }
+    } else {
+      this.currentStreak = 0;
+    }
+
+    this.saveToStorage();
+    this.renderStreakSection();
+  }
+
+  /**
+   * Setup weight tracking form
+   */
+  setupWeightTracking() {
+    const form = document.getElementById('weight-form');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleWeightSubmit();
+      });
+    }
   }
 
   /**
    * Handle weight form submission
    */
-  handleWeightSubmit(e) {
-    try {
-      const formData = new FormData(e.target);
-      const weight = parseFloat(formData.get('weight'));
-      const date = new Date(formData.get('date'));
+  handleWeightSubmit() {
+    const weightInput = document.getElementById('weight-input');
+    const dateInput = document.getElementById('date-input');
 
-      this.weightTracker.addRecord(weight, date);
-      this.render(); // Re-render to show updated stats
-      e.target.reset();
-    } catch (error) {
-      alert('Error adding weight: ' + error.message);
-    }
-  }
+    if (!weightInput || !dateInput) return;
 
-  /**
-   * Handle task checkbox change
-   */
-  handleTaskChange(e) {
-    const taskName = e.target.dataset.task;
-    const completed = e.target.checked;
-    console.log(`Task ${taskName} ${completed ? 'completed' : 'uncompleted'}`);
-    // Update streak logic here
-  }
+    const weight = parseFloat(weightInput.value);
+    const date = new Date(dateInput.value);
 
-  /**
-   * Render the application UI
-   */
-  render() {
-    const appRoot = document.getElementById('app-root');
-    if (!appRoot) {
-      console.error('App root element not found');
+    if (isNaN(weight) || weight < 20 || weight > 300) {
+      alert('Please enter a valid weight between 20 and 300 kg');
       return;
     }
 
-    // Clear existing content
-    appRoot.innerHTML = '';
-
-    // Create main container
-    const mainContainer = document.createElement('div');
-    mainContainer.className = 'main-container';
-
-    // Create sections
-    mainContainer.appendChild(this.createStreakSection());
-    mainContainer.appendChild(this.createTasksSection());
-    mainContainer.appendChild(this.createWeightSection());
-
-    appRoot.appendChild(mainContainer);
+    try {
+      this.weightTracker.logWeight(weight, date);
+      weightInput.value = '';
+      dateInput.value = new Date().toISOString().split('T')[0];
+      
+      this.saveToStorage();
+      this.renderWeightSection();
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   /**
-   * Create streak display section
+   * Render the entire application
    */
-  createStreakSection() {
-    const section = document.createElement('section');
-    section.className = 'streak-section';
-    section.innerHTML = `
-      <div class="section-header">
-        <h2>🔥 Streak Status</h2>
+  render() {
+    const appRoot = document.getElementById('app-root');
+    if (!appRoot) return;
+
+    appRoot.innerHTML = `
+      <div class="section">
+        <h2 class="section-title">Performance Metrics</h2>
+        <div id="streak-section"></div>
       </div>
-      <div class="streak-content">
+
+      <div class="section">
+        <h2 class="section-title">Daily Objectives</h2>
+        <div id="tasks-section"></div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Physique Progress</h2>
+        <div id="weight-section"></div>
+      </div>
+    `;
+
+    this.renderStreakSection();
+    this.renderTasksSection();
+    this.renderWeightSection();
+  }
+
+  /**
+   * Render streak status section
+   */
+  renderStreakSection() {
+    const streakSection = document.getElementById('streak-section');
+    if (!streakSection) return;
+
+    streakSection.innerHTML = `
+      <div class="streak-grid">
         <div class="streak-card">
           <div class="streak-label">Current Streak</div>
-          <div class="streak-value">${this.currentStreak} days</div>
+          <div class="streak-value">${this.currentStreak}</div>
         </div>
         <div class="streak-card">
           <div class="streak-label">Longest Streak</div>
-          <div class="streak-value">${this.longestStreak} days</div>
+          <div class="streak-value">${this.longestStreak}</div>
         </div>
       </div>
     `;
-    return section;
   }
 
   /**
-   * Create tasks section
+   * Render tasks section
    */
-  createTasksSection() {
+  renderTasksSection() {
+    const tasksSection = document.getElementById('tasks-section');
+    if (!tasksSection) return;
+
     const tasks = [
-      { id: 'workout1', label: '🏋️ Workout 1 (45 min)', name: 'workout1' },
-      { id: 'workout2', label: '🏃 Workout 2 (45 min, outdoor)', name: 'workout2' },
-      { id: 'water', label: '💧 Gallon of Water', name: 'water' },
-      { id: 'diet', label: '🥗 Vegetarian Diet', name: 'diet' },
-      { id: 'photo', label: '📷 Progress Photo', name: 'photo' },
-      { id: 'reading', label: '📚 Reading (10 pages)', name: 'reading' }
+      { id: 'workout1', label: 'Workout 1 (45 min)' },
+      { id: 'workout2', label: 'Workout 2 (45 min, outdoor)' },
+      { id: 'water', label: 'Gallon of Water' },
+      { id: 'diet', label: 'Vegetarian Diet' },
+      { id: 'photo', label: 'Progress Photo' },
+      { id: 'reading', label: 'Reading (10 pages)' }
     ];
 
-    const section = document.createElement('section');
-    section.className = 'tasks-section';
-    
-    let tasksHTML = `
-      <div class="section-header">
-        <h2>📋 Daily Tasks</h2>
-      </div>
-      <div class="tasks-content">
-    `;
-
-    tasks.forEach(task => {
-      tasksHTML += `
-        <div class="task-item">
-          <label>
-            <input 
-              type="checkbox" 
-              class="task-checkbox" 
-              data-task="${task.name}"
-              id="${task.id}"
-            >
-            <span>${task.label}</span>
+    tasksSection.innerHTML = `
+      <div class="tasks-grid">
+        ${tasks.map(task => `
+          <label class="task-item">
+            <input type="checkbox" id="${task.id}">
+            <span class="task-label">${task.label}</span>
           </label>
-        </div>
-      `;
-    });
-
-    tasksHTML += '</div>';
-    section.innerHTML = tasksHTML;
-    return section;
+        `).join('')}
+      </div>
+    `;
   }
 
   /**
-   * Create weight tracking section
+   * Render weight tracking section
    */
-  createWeightSection() {
-    const stats = this.weightTracker.getStatistics();
-    const current = this.weightTracker.getCurrentWeight();
-    const target = this.weightTracker.getTarget();
+  renderWeightSection() {
+    const weightSection = document.getElementById('weight-section');
+    if (!weightSection) return;
 
-    const section = document.createElement('section');
-    section.className = 'weight-section';
-    section.innerHTML = `
-      <div class="section-header">
-        <h2>⚖️ Weight Tracking</h2>
-      </div>
-      <div class="weight-content">
+    const currentWeight = this.weightTracker.getCurrentWeight();
+    const targetWeight = this.weightTracker.targetWeight;
+    const progress = this.weightTracker.getProgressPercentage();
+    const remaining = this.weightTracker.getRemainingWeight();
+
+    weightSection.innerHTML = `
+      <div class="weight-section">
         <div class="weight-stats">
-          <div class="stat-card">
+          <div class="stat-item">
             <div class="stat-label">Current</div>
-            <div class="stat-value">${current || 'No data'}kg</div>
+            <div class="stat-value">${currentWeight ? currentWeight.toFixed(1) : '—'} kg</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-item">
             <div class="stat-label">Target</div>
-            <div class="stat-value">${target}kg</div>
+            <div class="stat-value">${targetWeight.toFixed(1)} kg</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-item">
             <div class="stat-label">Progress</div>
-            <div class="stat-value">${stats.progress.toFixed(1)}%</div>
+            <div class="stat-value">${progress.toFixed(1)}%</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-item">
             <div class="stat-label">Remaining</div>
-            <div class="stat-value">${stats.remaining.toFixed(1)}kg</div>
+            <div class="stat-value">${remaining.toFixed(1)} kg</div>
           </div>
         </div>
+
         <form id="weight-form" class="weight-form">
           <div class="form-group">
-            <label for="weight-input">Weight (kg):</label>
-            <input 
-              type="number" 
-              id="weight-input" 
-              name="weight" 
-              step="0.1" 
-              min="20" 
-              max="300" 
-              required
-            >
+            <label class="form-label" for="weight-input">Weight (kg)</label>
+            <input type="number" id="weight-input" class="form-input" step="0.1" min="20" max="300" required>
           </div>
           <div class="form-group">
-            <label for="date-input">Date:</label>
-            <input 
-              type="date" 
-              id="date-input" 
-              name="date" 
-              value="${new Date().toISOString().split('T')[0]}"
-              required
-            >
+            <label class="form-label" for="date-input">Date</label>
+            <input type="date" id="date-input" class="form-input" value="${new Date().toISOString().split('T')[0]}" required>
           </div>
           <button type="submit" class="btn-primary">Log Weight</button>
         </form>
       </div>
     `;
-    return section;
-  }
-
-  /**
-   * Show error message
-   */
-  showError(message) {
-    const appRoot = document.getElementById('app-root');
-    if (appRoot) {
-      appRoot.innerHTML = `
-        <div class="error-message">
-          <h3>❌ Error</h3>
-          <p>${message}</p>
-        </div>
-      `;
-    }
   }
 }
 
-// Initialize app when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    const app = new App();
-    app.init();
-  });
-} else {
-  const app = new App();
-  app.init();
-}
-
-// Export for testing
-export { App };
+// Initialize the app
+const app = new App();
+app.init();
