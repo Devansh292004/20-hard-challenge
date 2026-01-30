@@ -20,4 +20,4 @@ const challengeSchema = new mongoose.Schema({
   }]
 });
 
-export default mongoose.model('Challenge', challengeSchema);
+export default mongoose.models.Challenge || mongoose.model('Challenge', challengeSchema);

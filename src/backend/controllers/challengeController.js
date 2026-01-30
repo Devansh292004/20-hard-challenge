@@ -1,8 +1,7 @@
 import Challenge from '../models/Challenge.js';
 import { calculateStreaks, isDayComplete } from '../utils/challengeUtils.js';
 import mongoose from 'mongoose';
-
-const challenges = [];
+import { challenges } from '../data/mockDb.js';
 
 export const getChallenge = async (req, res) => {
   try {
@@ -11,10 +10,11 @@ export const getChallenge = async (req, res) => {
       if (mongoose.connection.readyState === 1) {
         challenge = await Challenge.findOne({ userId: req.user.id });
       } else {
-        challenge = challenges.find(c => c.userId === req.user.id);
+        challenge = challenges.find(c => c.userId.toString() === req.user.id.toString());
       }
     } catch (e) {
-      challenge = challenges.find(c => c.userId === req.user.id);
+      console.error('getChallenge error, falling back to mock:', e.message);
+      challenge = challenges.find(c => c.userId.toString() === req.user.id.toString());
     }
 
     if (!challenge) {
@@ -34,12 +34,14 @@ export const getChallenge = async (req, res) => {
           challenges.push(challenge);
         }
       } catch (e) {
+        console.error('Create challenge error, falling back to mock:', e.message);
         challenge = { ...initialData };
         challenges.push(challenge);
       }
     }
     res.json(challenge);
   } catch (err) {
+    console.error('getChallenge catastrophic failure:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -52,10 +54,10 @@ export const updateDailyLog = async (req, res) => {
       if (mongoose.connection.readyState === 1) {
         challenge = await Challenge.findOne({ userId: req.user.id });
       } else {
-        challenge = challenges.find(c => c.userId === req.user.id);
+        challenge = challenges.find(c => c.userId.toString() === req.user.id.toString());
       }
     } catch (e) {
-      challenge = challenges.find(c => c.userId === req.user.id);
+      challenge = challenges.find(c => c.userId.toString() === req.user.id.toString());
     }
 
     if (!challenge) {
@@ -77,12 +79,8 @@ export const updateDailyLog = async (req, res) => {
     if (isDayComplete(log.tasks)) {
       log.status = 'completed';
     } else {
-      // If any task is explicitly set to false and it's not the current day or we want strict enforcement
-      // For simplicity, we'll mark as pending until end of day or if user marks as failed
-      // But let's check if they explicitly failed something
       const values = Object.values(log.tasks);
       if (values.some(v => v === false)) {
-          // If we are in the past, any incomplete task means failure
           const today = new Date().toISOString().split('T')[0];
           if (log.date < today) {
               log.status = 'failed';
@@ -100,12 +98,12 @@ export const updateDailyLog = async (req, res) => {
         await challenge.save();
       }
     } catch (e) {
-      // Mock save update already happened in memory for `challenges` array
+      console.error('updateDailyLog save error:', e.message);
     }
 
     res.json(challenge);
   } catch (err) {
-    console.error(err);
+    console.error('updateDailyLog catastrophic failure:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
