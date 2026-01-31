@@ -7,12 +7,13 @@ test('dynamic signup and weight tracking', async ({ page }) => {
   await page.goto('http://localhost:5173/signup');
 
   await page.fill('input[placeholder="Full Name"]', 'Dynamic User');
-  await page.fill('input[placeholder="Email"]', 'dynamic@example.com');
-  await page.fill('input[placeholder="Password"]', 'password123');
+  const email = `dynamic_${Date.now()}@example.com`;
+  await page.fill('input[placeholder="Email Address"]', email);
+  await page.fill('input[placeholder="Security Password"]', 'password123');
   await page.fill('input[placeholder="Start Weight (kg)"]', '100');
   await page.fill('input[placeholder="Goal Weight (kg)"]', '90');
 
-  await page.click('button:has-text("Begin Challenge")');
+  await page.click('button:has-text("Begin Elite Protocol")');
 
   await expect(page).toHaveURL(/.*dashboard/);
 
@@ -22,8 +23,8 @@ test('dynamic signup and weight tracking', async ({ page }) => {
   await expect(page.locator('.circle-val')).toHaveText('0%');
 
   // Log a new weight
-  await page.fill('input[placeholder="Weight (kg)"]', '95');
-  await page.click('button:has-text("Log Entry")');
+  await page.fill('input[placeholder="Enter Current Weight"]', '95');
+  await page.keyboard.press('Enter');
 
   // 100 -> 95. Loss = 5. (5/10) * 100 = 50%.
   await expect(page.locator('.circle-val')).toHaveText('50%');

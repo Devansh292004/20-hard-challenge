@@ -1,87 +1,67 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ChallengeProvider } from './context/ChallengeContext';
-import { NotificationProvider } from './context/NotificationContext';
-import Sidebar from './components/Sidebar';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import PerformanceAnalytics from './pages/PerformanceAnalytics';
 import PhysiqueReport from './pages/PhysiqueReport';
 import EliteCommunity from './pages/EliteCommunity';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
 import LandingPage from './pages/LandingPage';
-import './styles.css';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import { useChallenge } from './context/ChallengeContext';
+import ParticleBackground from './components/ParticleBackground';
 
-const PrivateRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token');
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
+const PageWrapper = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+  >
+    {children}
+  </motion.div>
+);
 
 function App() {
+  const { user, loading } = useChallenge();
+  const location = useLocation();
+
+  if (loading) return <div className="luxury-text">Initialising Elite Protocol...</div>;
+
   return (
-    <ChallengeProvider>
-      <NotificationProvider>
-        <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <div className="app-layout">
-                  <Sidebar />
-                  <main className="main-content">
-                    <Dashboard />
-                  </main>
-                </div>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/analytics"
-            element={
-              <PrivateRoute>
-                <div className="app-layout">
-                  <Sidebar />
-                  <main className="main-content">
-                    <PerformanceAnalytics />
-                  </main>
-                </div>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/physique"
-            element={
-              <PrivateRoute>
-                <div className="app-layout">
-                  <Sidebar />
-                  <main className="main-content">
-                    <PhysiqueReport />
-                  </main>
-                </div>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/community"
-            element={
-              <PrivateRoute>
-                <div className="app-layout">
-                  <Sidebar />
-                  <main className="main-content">
-                    <EliteCommunity />
-                  </main>
-                </div>
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-        </Router>
-      </NotificationProvider>
-    </ChallengeProvider>
+    <div className="app-container">
+      <ParticleBackground />
+      {user && <Sidebar />}
+      <div className={user ? "main-content" : "full-content"}>
+        {user && <Header />}
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+
+            <Route
+              path="/dashboard"
+              element={user ? <PageWrapper><Dashboard /></PageWrapper> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/analytics"
+              element={user ? <PageWrapper><PerformanceAnalytics /></PageWrapper> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/physique"
+              element={user ? <PageWrapper><PhysiqueReport /></PageWrapper> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/community"
+              element={user ? <PageWrapper><EliteCommunity /></PageWrapper> : <Navigate to="/login" />}
+            />
+          </Routes>
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
 

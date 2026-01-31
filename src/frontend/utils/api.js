@@ -1,6 +1,29 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
+const API_URL = '/api'; // Use Vite proxy
 
-export const fetchAPI = async (endpoint, options = {}) => {
+export const api = {
+  login: (email, password) =>
+    fetchAPI('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    }),
+
+  signup: (userData) =>
+    fetchAPI('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    }),
+
+  getChallenge: () =>
+    fetchAPI('/challenge'),
+
+  updateChallenge: (date, taskId, value) =>
+    fetchAPI('/challenge/log', {
+      method: 'POST',
+      body: JSON.stringify({ date, tasks: { [taskId]: value } })
+    })
+};
+
+async function fetchAPI(endpoint, options = {}) {
   const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
@@ -19,4 +42,4 @@ export const fetchAPI = async (endpoint, options = {}) => {
   }
 
   return response.json();
-};
+}

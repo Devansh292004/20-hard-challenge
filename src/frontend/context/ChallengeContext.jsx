@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { api } from '../utils/api';
 
 const ChallengeContext = createContext();
 
@@ -8,14 +9,69 @@ export const ChallengeProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const initAuth = async () => {
+      const savedUser = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+
+      if (savedUser && token) {
+        setUser(JSON.parse(savedUser));
+        await fetchChallenge();
+      }
+      setLoading(false);
+    };
+    initAuth();
   }, []);
+
+  const fetchChallenge = async () => {
+    try {
+      const data = await api.getChallenge();
+      setChallenge(data);
+    } catch (err) {
+      console.error('Failed to fetch challenge:', err);
+    }
+  };
+
+  const login = async (email, password) => {
+    setError(null);
+    try {
+      const { user, token } = await api.login(email, password);
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
+      await fetchChallenge();
+      return true;
+    } catch (err) {
+      setError(err.message || 'Authentication failed');
+      return false;
+    }
+  };
+
+  const register = async (userData) => {
+    setError(null);
+    try {
+      const { user, token } = await api.signup(userData);
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
+      await fetchChallenge();
+      return true;
+    } catch (err) {
+      setError(err.message || 'Registration failed');
+      return false;
+    }
+  };
+
+  const updateTask = async (date, taskId, value) => {
+    try {
+      const updated = await api.updateChallenge(date, taskId, value);
+      setChallenge(updated);
+    } catch (err) {
+      console.error('Update failed:', err);
+    }
+  };
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -26,11 +82,14 @@ export const ChallengeProvider = ({ children }) => {
 
   const value = {
     user,
-    setUser,
     challenge,
-    setChallenge,
     loading,
-    logout
+    error,
+    login,
+    register,
+    logout,
+    updateTask,
+    fetchChallenge
   };
 
   return (

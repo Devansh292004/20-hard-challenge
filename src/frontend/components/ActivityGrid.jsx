@@ -1,57 +1,70 @@
 import React from 'react';
+import { useChallenge } from '../context/ChallengeContext';
+import { motion } from 'framer-motion';
 
-const ActivityGrid = ({ logs }) => {
-  // Generate last 20 days
+const ActivityGrid = () => {
+  const { challenge } = useChallenge();
+
+  if (!challenge) return null;
+
+  // Last 30 days
   const days = [];
-  const today = new Date();
-
-  for (let i = 19; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-    const log = logs.find(l => l.date === dateStr);
-
-    days.push({
-      date: dateStr,
-      status: log ? log.status : 'empty'
-    });
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split('T')[0]);
   }
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'completed': return 'var(--gold)';
-      case 'failed': return '#ef4444';
-      case 'pending': return '#3a3a4a';
-      default: return '#1e1e2e';
-    }
+  const getIntensity = (date) => {
+    const log = challenge.dailyLogs.find(l => l.date === date);
+    if (!log) return 0;
+    if (log.status === 'failed') return -1;
+    const done = Object.values(log.tasks).filter(Boolean).length;
+    return done;
+  };
+
+  const getColor = (intensity) => {
+    if (intensity === -1) return '#ff4d4d'; // Failed
+    if (intensity === 0) return 'rgba(255,255,255,0.05)';
+    if (intensity <= 2) return 'rgba(212, 175, 55, 0.2)';
+    if (intensity <= 4) return 'rgba(212, 175, 55, 0.5)';
+    return '#d4af37'; // Max
   };
 
   return (
-    <div style={{ marginTop: '20px' }}>
-      <h3 style={{ fontSize: '0.9rem', color: '#8a8a95', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-        Activity Pipeline
-      </h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '8px' }}>
-        {days.map(day => (
-          <div
-            key={day.date}
-            title={day.date}
-            style={{
-              width: '100%',
-              paddingTop: '100%',
-              backgroundColor: getStatusColor(day.status),
-              borderRadius: '2px',
-              transition: 'transform 0.2s',
-              cursor: 'pointer'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          />
-        ))}
+    <div className="card">
+      <h2 className="card-title" style={{ fontSize: '1rem', marginBottom: '20px' }}>Consistency Matrix</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(15, 1fr)', gap: '8px' }}>
+        {days.map((date, i) => {
+          const intensity = getIntensity(date);
+          return (
+            <motion.div
+              key={date}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: i * 0.02 }}
+              whileHover={{ scale: 1.2, zIndex: 10 }}
+              style={{
+                aspectRatio: '1/1',
+                background: getColor(intensity),
+                borderRadius: '4px',
+                border: '1px solid rgba(255,255,255,0.03)',
+                cursor: 'pointer'
+              }}
+              title={`${date}: ${intensity === -1 ? 'FAILED' : intensity + ' tasks'}`}
+            />
+          );
+        })}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '0.7rem', color: '#6a6a75' }}>
-        <span>Day 1</span>
-        <span>Day 20</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', fontSize: '10px', color: '#555' }}>
+        <span>30 DAYS RETROSPECTIVE</span>
+        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <span>Less</span>
+          {[0, 1, 3, 6].map(v => (
+            <div key={v} style={{ width: '8px', height: '8px', background: getColor(v), borderRadius: '2px' }}></div>
+          ))}
+          <span>More</span>
+        </div>
       </div>
     </div>
   );

@@ -1,50 +1,83 @@
 import React from 'react';
+import { useChallenge } from '../context/ChallengeContext';
+import { motion } from 'framer-motion';
+import { Award, Shield, Star, Zap, Flame } from 'lucide-react';
 
-const BADGE_MAP = {
-  '7-day-streak': { label: '7 Day Warrior', icon: '🔥', color: '#ff4500' },
-  '20-day-streak': { label: 'Elite Finisher', icon: '🎖️', color: '#d4af37' },
-  '30-day-streak': { label: 'Monthly Master', icon: '🏆', color: '#ffd700' },
-  'goal-reached': { label: 'Weight Goal Hit', icon: '🎯', color: '#00ced1' },
-  'early-bird': { label: 'Early Bird', icon: '🌅', color: '#ffa500' },
-  'consistency-king': { label: 'Consistency King', icon: '👑', color: '#da70d6' },
-};
+const Badge = ({ icon: Icon, label, unlocked, delay }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ delay }}
+    whileHover={{ scale: 1.05 }}
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '15px',
+      background: unlocked ? 'rgba(212, 175, 55, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+      border: '1px solid',
+      borderColor: unlocked ? 'rgba(212, 175, 55, 0.3)' : 'rgba(255, 255, 255, 0.05)',
+      borderRadius: '16px',
+      opacity: unlocked ? 1 : 0.3,
+      filter: unlocked ? 'none' : 'grayscale(1)',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    <div style={{
+      width: '45px',
+      height: '45px',
+      borderRadius: '50%',
+      background: unlocked ? 'linear-gradient(135deg, #d4af37, #b8860b)' : '#222',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: unlocked ? '0 0 15px rgba(212, 175, 55, 0.3)' : 'none'
+    }}>
+      <Icon size={24} color={unlocked ? "#000" : "#444"} />
+    </div>
+    <span style={{ fontSize: '10px', fontWeight: 'bold', color: unlocked ? '#d4af37' : '#555', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>
+      {label}
+    </span>
+  </motion.div>
+);
 
-const BadgeDisplay = ({ badges = [] }) => {
-  const earnedSet = new Set(badges);
+const BadgeDisplay = () => {
+  const { challenge } = useChallenge();
+
+  if (!challenge) return null;
+
+  const earned = challenge.badges || [];
+
+  const allBadges = [
+    { id: 'first-day', label: 'Day I Secured', icon: Star },
+    { id: '7-day-warrior', label: '7 Day Warrior', icon: Shield },
+    { id: 'consistency-king', label: 'Consistency King', icon: Award },
+    { id: 'elite-finisher', label: 'Elite Finisher', icon: Flame },
+    { id: 'goal-reached', label: 'Goal Attained', icon: Zap },
+  ];
 
   return (
-    <section className="card" style={{ marginBottom: '20px' }}>
-      <h2 className="card-title">Elite Achievement Badges</h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
-        {Object.entries(BADGE_MAP).map(([id, badge]) => {
-          const isEarned = earnedSet.has(id);
-          return (
-            <div
-              key={id}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '12px',
-                borderRadius: '12px',
-                background: isEarned ? 'rgba(218, 165, 32, 0.1)' : 'rgba(255, 255, 255, 0.03)',
-                border: `1px solid ${isEarned ? badge.color : '#333'}`,
-                minWidth: '100px',
-                opacity: isEarned ? 1 : 0.4,
-                transition: 'all 0.3s ease',
-                filter: isEarned ? 'none' : 'grayscale(100%)'
-              }}
-            >
-              <span style={{ fontSize: '2rem', marginBottom: '8px' }}>{badge.icon}</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', textAlign: 'center', color: isEarned ? '#fff' : '#888' }}>
-                {badge.label}
-              </span>
-              {!isEarned && <span style={{ fontSize: '0.6rem', color: '#555', marginTop: '4px' }}>LOCKED</span>}
-            </div>
-          );
-        })}
+    <div className="card">
+      <h2 className="card-title" style={{ fontSize: '1rem', marginBottom: '20px' }}>Elite Commendations</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+        {allBadges.map((b, i) => (
+          <Badge
+            key={b.id}
+            icon={b.icon}
+            label={b.label}
+            unlocked={earned.includes(b.id)}
+            delay={i * 0.1}
+          />
+        ))}
       </div>
-    </section>
+
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+         <div style={{ fontSize: '11px', color: '#555', letterSpacing: '1px' }}>
+            {earned.length} / {allBadges.length} MILESTONES SECURED
+         </div>
+      </div>
+    </div>
   );
 };
 

@@ -6,13 +6,14 @@ test('verify elite performance features', async ({ page }) => {
   await page.screenshot({ path: 'screenshots/landing.png' });
 
   // Signup
-  await page.click('text=Join the Elite');
-  await page.fill('placeholder="Full Name"', 'Elite Athlete');
-  await page.fill('placeholder="Email Address"', 'elite@example.com');
-  await page.fill('placeholder="Password"', 'password123');
-  await page.fill('placeholder="Start Weight"', '85');
-  await page.fill('placeholder="Target Weight"', '78');
-  await page.click('button:has-text("CREATE ELITE ACCOUNT")');
+  await page.click('text=Begin Your Journey');
+  const email = `elite_${Date.now()}@example.com`;
+  await page.fill('[placeholder="Full Name"]', 'Elite Athlete');
+  await page.fill('[placeholder="Email Address"]', email);
+  await page.fill('[placeholder="Security Password"]', 'password123');
+  await page.fill('[placeholder="Start Weight (kg)"]', '85');
+  await page.fill('[placeholder="Goal Weight (kg)"]', '78');
+  await page.click('button:has-text("Begin Elite Protocol")');
 
   // Wait for dashboard
   await expect(page).toHaveURL(/.*dashboard/);
@@ -20,7 +21,7 @@ test('verify elite performance features', async ({ page }) => {
   await page.screenshot({ path: 'screenshots/dashboard.png' });
 
   // Navigate to Analytics
-  await page.click('text=Performance Analytics');
+  await page.click('text=Performance');
   await expect(page).toHaveURL(/.*analytics/);
   await page.waitForTimeout(1000);
   await page.screenshot({ path: 'screenshots/analytics.png' });
