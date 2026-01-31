@@ -255,8 +255,8 @@ const Header = () => {
           height: 38px;
           border-radius: 10px;
           display: flex;
-          alignItems: center;
-          justifyContent: center;
+          align-items: center;
+          justify-content: center;
           transition: all 0.3s ease;
         }
         .icon-btn:hover {

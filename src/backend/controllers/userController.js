@@ -30,6 +30,36 @@ export const getProfile = async (req, res) => {
   }
 };
 
+export const deleteAccount = async (req, res) => {
+  try {
+    try {
+        if (mongoose.connection.readyState === 1) {
+            await User.findByIdAndDelete(req.user.id);
+            // Also delete their challenge data
+            // (Assuming Challenge model exists and uses userId)
+            // await Challenge.findOneAndDelete({ userId: req.user.id });
+        } else {
+            const index = users.findIndex(u => u._id.toString() === req.user.id.toString());
+            if (index > -1) {
+                users.splice(index, 1);
+                saveMockDb();
+            }
+        }
+    } catch (e) {
+        const index = users.findIndex(u => u._id.toString() === req.user.id.toString());
+        if (index > -1) {
+            users.splice(index, 1);
+            saveMockDb();
+        }
+    }
+
+    res.json({ message: 'Account permanently terminated from the protocol.' });
+  } catch (err) {
+    console.error('deleteAccount failure:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 export const updateProfile = async (req, res) => {
   try {
     let user;

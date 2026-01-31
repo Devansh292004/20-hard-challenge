@@ -20,6 +20,17 @@ export const api = {
     fetchAPI('/challenge/log', {
       method: 'POST',
       body: JSON.stringify({ date, tasks: { [taskId]: value } })
+    }),
+
+  updateProfile: (userData) =>
+    fetchAPI('/user/profile', {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    }),
+
+  deleteAccount: () =>
+    fetchAPI('/user/profile', {
+      method: 'DELETE'
     })
 };
 

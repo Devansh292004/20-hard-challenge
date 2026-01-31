@@ -80,6 +80,29 @@ export const ChallengeProvider = ({ children }) => {
     setChallenge(null);
   };
 
+  const updateProfile = async (userData) => {
+    try {
+      const updatedUser = await api.updateProfile(userData);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      return true;
+    } catch (err) {
+      console.error('Profile update failed:', err);
+      return false;
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      await api.deleteAccount();
+      logout();
+      return true;
+    } catch (err) {
+      console.error('Account deletion failed:', err);
+      return false;
+    }
+  };
+
   const value = {
     user,
     challenge,
@@ -89,7 +112,9 @@ export const ChallengeProvider = ({ children }) => {
     register,
     logout,
     updateTask,
-    fetchChallenge
+    fetchChallenge,
+    updateProfile,
+    deleteAccount
   };
 
   return (
