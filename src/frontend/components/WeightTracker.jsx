@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useChallenge } from '../context/ChallengeContext';
 import { motion } from 'framer-motion';
 import { Scale, ChevronRight } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 const WeightTracker = () => {
   const { challenge, user, updateTask } = useChallenge();
@@ -24,6 +25,17 @@ const WeightTracker = () => {
   const goalToLose = user?.startWeight - user?.targetWeight;
   const currentlyLost = user?.startWeight - currentWeight;
   const progress = goalToLose > 0 ? Math.min(100, Math.max(0, (currentlyLost / goalToLose) * 100)).toFixed(0) : 0;
+
+  useEffect(() => {
+    if (progress >= 100) {
+      confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#d4af37', '#ffffff', '#b8860b']
+      });
+    }
+  }, [progress]);
 
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

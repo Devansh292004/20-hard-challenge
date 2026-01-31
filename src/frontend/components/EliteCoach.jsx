@@ -10,7 +10,11 @@ const insights = [
   "The hard way is the only way that leads to greatness.",
   "Comfort is the enemy of progress. Embrace the struggle.",
   "A king doesn't ask for permission to rule his own life.",
-  "Every drop of sweat is a payment for your new reality."
+  "Every drop of sweat is a payment for your new reality.",
+  "The elite don't wait for motivation. They rely on the system.",
+  "Your only competition is the person you were yesterday.",
+  "Greatness is found in the non-negotiable details.",
+  "Stop negotiating with your own excellence."
 ];
 
 const EliteCoach = () => {

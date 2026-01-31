@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import PerformanceAnalytics from './pages/PerformanceAnalytics';
 import PhysiqueReport from './pages/PhysiqueReport';
 import EliteCommunity from './pages/EliteCommunity';
+import Settings from './pages/Settings';
 import LandingPage from './pages/LandingPage';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -57,6 +58,10 @@ function App() {
             <Route
               path="/community"
               element={user ? <PageWrapper><EliteCommunity /></PageWrapper> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/settings"
+              element={user ? <PageWrapper><Settings /></PageWrapper> : <Navigate to="/login" />}
             />
           </Routes>
         </AnimatePresence>

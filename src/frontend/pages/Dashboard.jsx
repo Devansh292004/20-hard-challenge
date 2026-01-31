@@ -32,9 +32,15 @@ const Dashboard = () => {
 
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '14px', color: '#8a8a95' }}>System Status</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#4caf50', fontWeight: 'bold', fontSize: '12px' }}>
-             <span style={{ width: '8px', height: '8px', background: '#4caf50', borderRadius: '50%', display: 'inline-block' }}></span>
-             OPTIMAL PERFORMANCE
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: challenge.currentStreak > 0 ? '#4caf50' : '#d4af37', fontWeight: 'bold', fontSize: '12px' }}>
+             <span className="status-dot" style={{
+               width: '8px',
+               height: '8px',
+               background: challenge.currentStreak > 0 ? '#4caf50' : '#d4af37',
+               borderRadius: '50%',
+               display: 'inline-block'
+             }}></span>
+             {challenge.currentStreak > 5 ? 'PEAK PERFORMANCE' : 'OPTIMAL PERFORMANCE'}
           </div>
         </div>
       </motion.div>
