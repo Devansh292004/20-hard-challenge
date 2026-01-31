@@ -8,7 +8,8 @@ import {
   Globe,
   LogOut,
   Shield,
-  User
+  User,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -26,6 +27,7 @@ const Sidebar = () => {
     { path: '/analytics', label: 'Performance', icon: LineChart },
     { path: '/physique', label: 'Physique Report', icon: Activity },
     { path: '/community', label: 'Elite Community', icon: Globe },
+    { path: '/settings', label: 'Settings', icon: SettingsIcon },
   ];
 
   return (

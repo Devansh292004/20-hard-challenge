@@ -66,6 +66,8 @@ const DailyChecklist = () => {
               key={task.id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.02, x: 5 }}
+              whileTap={{ scale: 0.98 }}
               transition={{ delay: index * 0.1 }}
               onClick={() => handleToggle(task.id, todayLog.tasks[task.id])}
               style={{
