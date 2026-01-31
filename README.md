@@ -8,7 +8,7 @@ A professional-grade, luxury-tier accountability system for the 20 Hard Challeng
 
 This platform has been transformed from a personal tracker into a world-class productivity suite.
 
-*   **Luxury UI**: High-contrast "Elite Dark" theme with gold accents and cinematic typography.
+*   **Marvelous UI**: A cinematic "Elite Dark" experience with gold glassmorphism, fluid `framer-motion` animations, and a high-end command center aesthetic.
 *   **Multi-User Support**: Secure account creation and data persistence for multiple challengers.
 *   **Performance Analytics**: Interactive Chart.js visualizations for completion trends and consistency scores.
 *   **Physique Reporting**: Weight tracking with trend lines, goal progress, and transformation metrics.
@@ -70,12 +70,16 @@ The app will be available at `http://localhost:5173`. The API runs on `http://lo
 ```
 .
 ├── src/
-│   ├── backend/          # Express API, Auth, and Enforcement logic
 │   ├── frontend/         # React components, pages, and luxury styles
-│   ├── models/           # Mongoose schemas for Users and Challenges
-│   └── main.jsx          # Frontend entry point
-├── tests/                # Unit and Integration tests
-├── docs/                 # Detailed documentation
+│   │   ├── components/   # Reusable UI modules (Glass cards, charts, etc.)
+│   │   ├── pages/        # View-level components (Dashboard, Analytics, etc.)
+│   │   └── App.jsx       # Main App component
+│   ├── backend/          # Node.js + Express API, Auth, and Enforcement logic
+│   │   ├── routes/       # API endpoints
+│   │   ├── models/       # Database schemas
+│   │   └── server.js     # Backend entry point
+│   └── main.jsx          # React entry point
+├── tests/                # Unit, Integration, and Playwright E2E tests
 └── package.json          # Project configuration
 ```
 

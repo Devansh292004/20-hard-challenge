@@ -1,68 +1,91 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useChallenge } from '../context/ChallengeContext';
-import { useNotification } from '../context/NotificationContext';
+import { motion } from 'framer-motion';
+import { Shield, Key, Mail, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login, error } = useChallenge();
   const navigate = useNavigate();
-  const { setUser } = useChallenge();
-  const { notify } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-        notify(`Welcome back, ${data.user.name}. Session authenticated.`, 'success');
-        navigate('/dashboard');
-      } else {
-        notify(data.message || 'Login failed', 'error');
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      notify('Login failed. Please check your connection.', 'error');
-    }
+    const success = await login(email, password);
+    if (success) navigate('/dashboard');
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%' }}>
-      <section className="card" style={{ maxWidth: '400px', width: '100%' }}>
-        <h2 className="card-title" style={{ textAlign: 'center' }}>Elite Login</h2>
-        <form onSubmit={handleSubmit} className="prod-form">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ marginBottom: '15px' }}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ marginBottom: '20px' }}
-          />
-          <button type="submit" className="btn-primary" style={{ width: '100%' }}>
-            Authenticate
+    <div className="login-page" style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="card"
+        style={{ maxWidth: '450px', width: '100%', padding: '40px' }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{
+            display: 'inline-flex',
+            padding: '15px',
+            background: 'rgba(212, 175, 55, 0.1)',
+            borderRadius: '20px',
+            marginBottom: '20px'
+          }}>
+            <Shield size={40} color="#d4af37" />
+          </div>
+          <h2 className="luxury-header" style={{ fontSize: '1.8rem' }}>Athlete Authentication</h2>
+          <p style={{ color: '#8a8a95', fontSize: '14px' }}>Access your secure performance protocol</p>
+        </div>
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ color: '#ff4d4d', background: 'rgba(255, 77, 77, 0.1)', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px', textAlign: 'center' }}
+          >
+            {error}
+          </motion.div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ position: 'relative' }}>
+            <Mail size={18} color="#555" style={{ position: 'absolute', left: '15px', top: '15px' }} />
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={{ paddingLeft: '45px' }}
+            />
+          </div>
+          <div style={{ position: 'relative' }}>
+            <Key size={18} color="#555" style={{ position: 'absolute', left: '15px', top: '15px' }} />
+            <input
+              type="password"
+              placeholder="Security Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{ paddingLeft: '45px' }}
+            />
+          </div>
+          <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            Enter Command Center <ArrowRight size={18} />
           </button>
         </form>
-        <p style={{ marginTop: '20px', textAlign: 'center', color: '#8a8a95' }}>
-          New athlete? <Link to="/signup" style={{ color: '#daa520' }}>Register here</Link>
-        </p>
-      </section>
+
+        <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '14px', color: '#8a8a95' }}>
+          Not yet recruited? <Link to="/signup" style={{ color: '#d4af37', fontWeight: 'bold', textDecoration: 'none' }}>Initialize Protocol</Link>
+        </div>
+      </motion.div>
     </div>
   );
 };

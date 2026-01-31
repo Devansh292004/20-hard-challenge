@@ -1,173 +1,130 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useChallenge } from '../context/ChallengeContext';
-import { useNotification } from '../context/NotificationContext';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { CheckCircle2, Circle, Trophy } from 'lucide-react';
+import EliteCoach from './EliteCoach';
 
 const DailyChecklist = () => {
-  const { challenge, setChallenge } = useChallenge();
-  const { notify } = useNotification();
-  const [isCustomizing, setIsCustomizing] = useState(false);
-  const [editedTasks, setEditedTasks] = useState(challenge?.customTasks || []);
+  const { challenge, updateTask } = useChallenge();
 
-  const tasks = challenge?.customTasks?.filter(t => t.enabled) || [
-    { id: 'workout1', label: 'Workout I (45 min)' },
-    { id: 'workout2', label: 'Workout II (Outdoor)' },
-    { id: 'water', label: 'Hydration (Gallon)' },
-    { id: 'diet', label: 'Optimal Nutrition' },
-    { id: 'photo', label: 'Physique Evidence' },
-    { id: 'reading', label: 'Knowledge (10 pages)' }
-  ];
+  if (!challenge) return null;
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const todayLog = challenge?.dailyLogs?.find(log => log.date === todayStr) || { tasks: {} };
-
-  const toggleTask = async (taskId) => {
-    try {
-      const updatedTasks = { ...todayLog.tasks, [taskId]: !todayLog.tasks[taskId] };
-      const response = await fetch('/api/challenge/log', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ date: todayStr, tasks: updatedTasks }),
-      });
-      if (response.ok) {
-        const updatedChallenge = await response.json();
-        setChallenge(updatedChallenge);
-
-        if (!todayLog.tasks[taskId]) {
-            const task = tasks.find(t => t.id === taskId);
-            notify(`Great job! Completed: ${task?.label || taskId}`, 'success');
-        }
-      }
-    } catch (err) {
-      console.error('Failed to toggle task', err);
+  const today = new Date().toISOString().split('T')[0];
+  const todayLog = challenge.dailyLogs.find(log => log.date === today) || {
+    tasks: {
+      workout1: false,
+      workout2: false,
+      diet: false,
+      water: false,
+      reading: false,
+      photo: false
     }
   };
 
-  const handleSaveTasks = async () => {
-    try {
-      const response = await fetch('/api/challenge/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ customTasks: editedTasks }),
+  const tasks = [
+    { id: 'workout1', label: challenge.template?.tasks?.workout1 || 'Morning Workout' },
+    { id: 'workout2', label: challenge.template?.tasks?.workout2 || 'Outdoor Workout' },
+    { id: 'diet', label: challenge.template?.tasks?.diet || 'Clean Diet' },
+    { id: 'water', label: challenge.template?.tasks?.water || 'Gallon of Water' },
+    { id: 'reading', label: challenge.template?.tasks?.reading || '10 Pages Reading' },
+    { id: 'photo', label: challenge.template?.tasks?.photo || 'Progress Photo' }
+  ].filter(t => challenge.template?.enabledTasks?.[t.id] !== false);
+
+  const handleToggle = (taskId, currentState) => {
+    const newState = !currentState;
+    updateTask(today, taskId, newState);
+
+    if (newState) {
+      confetti({
+        particleCount: 40,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#d4af37', '#ffffff', '#b8860b']
       });
-      if (response.ok) {
-        const updatedChallenge = await response.json();
-        setChallenge(updatedChallenge);
-        setIsCustomizing(false);
-        notify('Challenge template updated successfully.', 'success');
-      }
-    } catch (err) {
-      notify('Failed to update template', 'error');
     }
   };
 
-  const completedCount = tasks.filter(t => {
-      // Handle both Map and plain object
-      const val = todayLog.tasks.get ? todayLog.tasks.get(t.id) : todayLog.tasks[t.id];
-      return val === true;
-  }).length;
-  const progressPercent = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
+  const completedCount = tasks.filter(t => todayLog.tasks[t.id]).length;
+  const isAllDone = completedCount === tasks.length;
 
   return (
-    <section className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-        <h2 className="card-title" style={{ margin: 0 }}>Daily Objectives</h2>
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <button
-                onClick={() => {
-                    setEditedTasks(challenge?.customTasks || tasks);
-                    setIsCustomizing(true);
-                }}
-                className="btn-secondary"
-                style={{ padding: '4px 12px', fontSize: '12px' }}
-            >
-                Customize
-            </button>
-            <span style={{ color: 'var(--luxury-gold)', fontWeight: 700 }}>{completedCount}/{tasks.length}</span>
-        </div>
-      </div>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+      <EliteCoach />
 
-      <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', marginBottom: '30px' }}>
-        <div style={{
-          width: `${progressPercent}%`,
-          height: '100%',
-          background: 'var(--luxury-gold)',
-          borderRadius: '2px',
-          transition: 'width 0.5s ease'
-        }} />
-      </div>
-
-      <div className="tasks-grid">
-        {tasks.map((task) => {
-          const isChecked = todayLog.tasks.get ? todayLog.tasks.get(task.id) : todayLog.tasks[task.id];
-          return (
-            <label key={task.id} className="task-item">
-                <input
-                type="checkbox"
-                checked={!!isChecked}
-                onChange={() => toggleTask(task.id)}
-                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
-                />
-                <span className="task-label">{task.label}</span>
-            </label>
-          );
-        })}
-      </div>
-
-      {isCustomizing && (
-          <div style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(0,0,0,0.85)', display: 'flex',
-              justifyContent: 'center', alignItems: 'center', zIndex: 1000,
-              backdropFilter: 'blur(8px)'
-          }}>
-              <div className="card" style={{ width: '100%', maxWidth: '500px' }}>
-                  <h3 className="card-title">Customize Your Challenge</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', margin: '20px 0' }}>
-                      {editedTasks.map((t, idx) => (
-                          <div key={t.id} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                              <input
-                                type="checkbox"
-                                checked={t.enabled}
-                                onChange={(e) => {
-                                    const newTasks = [...editedTasks];
-                                    newTasks[idx].enabled = e.target.checked;
-                                    setEditedTasks(newTasks);
-                                }}
-                              />
-                              <input
-                                type="text"
-                                value={t.label}
-                                onChange={(e) => {
-                                    const newTasks = [...editedTasks];
-                                    newTasks[idx].label = e.target.value;
-                                    setEditedTasks(newTasks);
-                                }}
-                                style={{ flex: 1 }}
-                              />
-                          </div>
-                      ))}
-                      <button
-                        onClick={() => setEditedTasks([...editedTasks, { id: `custom_${Date.now()}`, label: 'New Task', enabled: true }])}
-                        className="btn-secondary"
-                        style={{ alignSelf: 'flex-start' }}
-                      >
-                          + Add Custom Task
-                      </button>
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                      <button onClick={() => setIsCustomizing(false)} className="btn-secondary">Cancel</button>
-                      <button onClick={handleSaveTasks} className="btn-primary">Save Template</button>
-                  </div>
-              </div>
+      <div className="card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 className="card-title">Daily Protocol</h2>
+          <div style={{ color: '#d4af37', fontWeight: 'bold' }}>
+            {completedCount}/{tasks.length} SECURED
           </div>
-      )}
-    </section>
+        </div>
+
+        <div className="task-list">
+          {tasks.map((task, index) => (
+            <motion.div
+              key={task.id}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              onClick={() => handleToggle(task.id, todayLog.tasks[task.id])}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '15px',
+                padding: '16px',
+                marginBottom: '10px',
+                borderRadius: '12px',
+                background: todayLog.tasks[task.id]
+                  ? 'rgba(212, 175, 55, 0.15)'
+                  : 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid',
+                borderColor: todayLog.tasks[task.id]
+                  ? 'rgba(212, 175, 55, 0.5)'
+                  : 'rgba(255, 255, 255, 0.05)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {todayLog.tasks[task.id] ? (
+                <CheckCircle2 color="#d4af37" size={24} />
+              ) : (
+                <Circle color="#444" size={24} />
+              )}
+              <span style={{
+                flex: 1,
+                fontSize: '16px',
+                color: todayLog.tasks[task.id] ? '#fff' : '#8a8a95',
+                textDecoration: todayLog.tasks[task.id] ? 'line-through' : 'none'
+              }}>
+                {task.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+
+        {isAllDone && (
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            style={{
+              marginTop: '20px',
+              padding: '15px',
+              background: 'linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent)',
+              textAlign: 'center',
+              borderRadius: '8px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+              <Trophy size={20} color="#d4af37" />
+              <span style={{ fontFamily: 'Cinzel', color: '#d4af37', letterSpacing: '1px' }}>
+                DAILY OBJECTIVES SECURED. ELITE STATUS MAINTAINED.
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </div>
   );
 };
 
